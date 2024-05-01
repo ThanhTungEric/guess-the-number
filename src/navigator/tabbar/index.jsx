@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text, View, Dimensions, Image } from "react-native";
 import Home from "../../screens/home/home";
+
 import Profile from "../../screens/profile/profile";
 import ProfileSettings from "../../screens/settings/settings";
 import { getPathDown } from "./curve";

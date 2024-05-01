@@ -2,13 +2,19 @@ import { SafeAreaView, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { BottomTabNavigator } from "./src/navigator/tabbar";
 import { Platform } from 'react-native';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import PlayWithBot from "./src/screens/home/components/play-with-bot";
 
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <SafeAreaView style={styles.droidSafeArea}>
       <NavigationContainer>
-        <BottomTabNavigator></BottomTabNavigator>
+        <Stack.Navigator>
+          <Stack.Screen name="BottomTabNavigator" component={BottomTabNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="PlayWithBot" component={PlayWithBot} options={{ headerShown: false }} />
+        </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>
   );
