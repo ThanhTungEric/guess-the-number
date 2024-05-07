@@ -14,6 +14,9 @@ function Home({ navigation }) {
   const handlePress = (props) => {
     navigation.navigate('PlayWithBot')
   }
+  const handlePressRoom = (props) => {
+    navigation.navigate('Room')
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header_home}>
@@ -75,10 +78,12 @@ function Home({ navigation }) {
           </View>
         </View>
         <View style={styles.main_container_game}>
-          <View style={{ width: "45%", aspectRatio: 1, backgroundColor: '#04c977', borderRadius: 15, justifyContent: "center", alignItems: "center" }}>
+          <TouchableOpacity
+            onPress={handlePressRoom}
+            style={{ width: "45%", aspectRatio: 1, backgroundColor: '#04c977', borderRadius: 15, justifyContent: "center", alignItems: "center" }}>
             <FontAwesome5 name="play" size={50} color="#04583e" />
             <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginTop: 8 }}>Play 1 vs 1</Text>
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={handlePress}
             style={{ width: "45%", aspectRatio: 1, backgroundColor: '#04c977', borderRadius: 15, justifyContent: "center", alignItems: "center" }}>

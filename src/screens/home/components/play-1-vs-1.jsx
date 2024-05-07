@@ -12,19 +12,35 @@ import { FontAwesome } from '@expo/vector-icons';
 
 const { width } = Dimensions.get("window");
 
-function PlayWithBot({ navigation }) {
+const currentChat = {
+  username: "thaothu",
+  _id: "6634fbcddbd65d4b403b6007",
+}
+const data =
+{
+  username: "thanhtung",
+  _id: "6634f26fdbd65d4b403b5fef",
+}
+
+function PlayWithPlayer({ navigation, route }) {
+  const [messages, setMessages] = useState([]);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
+
   const handleBackHome = () => {
     navigation.navigate('Home')
   }
-  const [botNumber, setBotNumber] = useState('');
+  const [botNumber, setBotNumber] = useState('2031');
   const [isModalVisible, setModalVisible] = useState(true);
   const [inputValue, setInputValue] = useState([]);
+
+  //navigation.navigate('PlayWithPlayer', { room, socket })
+  const roomName = route.params.room;
+  const socket = route.params.socket;
+
   const toggleModalVisibility = () => {
     if (inputValue.length === 4) {
       setModalVisible(!isModalVisible);
-      const randomUniqueNumber = getRandomUniqueFourDigitNumber();
-      setBotNumber(randomUniqueNumber);
-      console.log("number of bot", randomUniqueNumber);
+
     }
   }
   const handleInputNumber = (number) => {
@@ -88,7 +104,6 @@ function PlayWithBot({ navigation }) {
     else {
       console.log("0 number is correct");
     }
-    aiBotGuessNumber();
     setSelectedNumbers([]);
   };
 
@@ -96,93 +111,34 @@ function PlayWithBot({ navigation }) {
     console.log(listNumber);
   }, [listNumber]);
 
-  // AI bot guess number
-  const [isCorect0, setIsCorect0] = useState([]);
-  const [isCorect1, setIsCorect1] = useState([]);
-  const [isCorect2, setIsCorect2] = useState([]);
-  const [isCorect3, setIsCorect3] = useState([]);
-  const [isCorect4, setIsCorect4] = useState([]);
-  const [numbers, setNumbers] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-  const aiBotGuessNumber = () => {
-    let number = '';
-    const inputValueNumber = inputValue.join('');
+  const handleSendMsg = async (msg) => {
+    socket.current.emit("send-msg", {
+      to: currentChat._id,
+      from: data._id,
+      msg,
+    });
+    const msgs = [...messages];
+    msgs.push({ fromSelf: true, message: msg });
+    setMessages(msgs);
+    handleGuess();
+    setSelectedNumbers([]);
+  };
 
-    let usedNumbers = [];
-    // use number to random 4 number
-    for (let i = 0; i < 4; i++) {
-      let randomNumber;
-      do {
-        randomNumber = Math.floor(Math.random() * 10);
-      } while (usedNumbers.includes(randomNumber));
-      usedNumbers.push(randomNumber);
-      number += randomNumber;
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on("msg-recieve", (msg) => {
+        setArrivalMessage({ fromSelf: false, message: msg });
+      });
     }
+  }, []);
 
-    console.log("bot guess number", number);
-    let count = 0;
-    for (let i = 0; i < 4; i++) {
-      if (inputValueNumber.includes(number[i])) {
-        count++;
-      }
-    }
-    if (number === inputValueNumber) {
-      console.log("Bot win");
-    } else if (count === 4) {
-      // push number to isCorect4
-      isCorect4.push(number);
-      console.log("bot 4 number is correct");
-      console.log("is corect 4", isCorect4);
-    } else if (count === 1) {
-      // push number to isCorect1
-      isCorect1.push(number);
-      console.log("bot 1 number is correct");
-      console.log("is corect 1", isCorect1);
-    }
-    else if (count === 2) {
-      // push number to isCorect2
-      isCorect2.push(number);
-      console.log("bot 2 number is correct");
-      console.log("is corect 2", isCorect2);
-    }
-    else if (count === 3) {
-      // push number to isCorect3
-      isCorect3.push(number);
-      console.log("bot 3 number is correct");
-      console.log("is corect 3", isCorect3);
-    }
-    else {
-      // push number to isCorect0
-      isCorect0.push(number);
-      console.log("bot 0 number is correct");
-      console.log("is corect 0", isCorect0);
-    }
-  }
+  useEffect(() => {
+    arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage]);
 
-  // ramdom number
-  const getRandomUniqueFourDigitNumber = () => {
-    let numArray = [];
-    for (let i = 0; i < 10; i++) {
-      numArray.push(i);
-    }
-    let result = '';
-    for (let i = 0; i < 4; i++) {
-      const randomIndex = Math.floor(Math.random() * numArray.length);
-      result += numArray[randomIndex];
-      numArray.splice(randomIndex, 1);
-    }
-
-    return result;
-  }
-  // useEffect(() => {
-  //   const randomUniqueNumber = getRandomUniqueFourDigitNumber();
-  //   setBotNumber(randomUniqueNumber);
-  //   console.log("number of bot", randomUniqueNumber);
-  // }, []);
-
-  // create bot guess my number inputValue
-
-
-
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
 
   return (
     <View style={styles.container}>
@@ -220,7 +176,7 @@ function PlayWithBot({ navigation }) {
             <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}> {selectedNumbers[index] !== undefined ? selectedNumbers[index] : ""} </Text>
           </View>
         ))}
-        <TouchableOpacity style={{ backgroundColor: '#0b9d6a', width: 50, height: 50, justifyContent: "center", alignItems: "center", margin: 5, borderRadius: 5 }} onPress={handleGuess}>
+        <TouchableOpacity style={{ backgroundColor: '#0b9d6a', width: 50, height: 50, justifyContent: "center", alignItems: "center", margin: 5, borderRadius: 5 }}  onPress={() => handleSendMsg(selectedNumbers.join(''))}>
           <FontAwesome name="send" size={24} color="#fff" />
         </TouchableOpacity>
       </SafeAreaView>
@@ -284,7 +240,7 @@ function PlayWithBot({ navigation }) {
   );
 }
 
-export default PlayWithBot;
+export default PlayWithPlayer;
 
 const styles = StyleSheet.create({
   container: {
