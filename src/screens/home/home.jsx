@@ -15,7 +15,8 @@ function Home({ navigation }) {
   const handlePress = (props) => {
     navigation.navigate('PlayWithBot')
   }
-  const handlePressRoom = (props) => {
+  //go to play one to one
+  const handlePressPlayOneToOne = (props) => {
     navigation.navigate('Room')
   }
   return (
@@ -49,17 +50,15 @@ function Home({ navigation }) {
           </View>
         </View>
         <View style={styles.main_container_game}>
-          <TouchableOpacity
-            onPress={handlePressRoom}
-            style={{ width: "45%", aspectRatio: 1, backgroundColor: '#04c977', borderRadius: 15, justifyContent: "center", alignItems: "center" }}>
+          <TouchableOpacity onPress={handlePressPlayOneToOne} on style={{ width: "45%", aspectRatio: 1, backgroundColor: '#04c977', borderRadius: 15, justifyContent: "center", alignItems: "center" }}>
             <FontAwesome5 name="play" size={50} color="#04583e" />
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginTop: 8 }}>Play 1 vs 1</Text>
+            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginTop: 8 }}>1 Vs 1</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handlePress}
             style={{ width: "45%", aspectRatio: 1, backgroundColor: '#04c977', borderRadius: 15, justifyContent: "center", alignItems: "center" }}>
             <MaterialCommunityIcons name="robot-confused" size={50} color="#04583e" />
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginTop: 8 }}>Play vs Bot</Text>
+            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginTop: 8 }}>Play Vs Bot</Text>
           </TouchableOpacity>
         </View>
       </View>
