@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Button, SafeAreaView, StyleSheet, Modal, TouchableOpacity, Text,
-  View, TextInput, Dimensions, Image
+  View, Dimensions, Image
 } from "react-native";
 
 //icon
