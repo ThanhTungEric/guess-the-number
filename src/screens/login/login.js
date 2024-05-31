@@ -17,7 +17,7 @@ const Login = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name: name }),
+                body: JSON.stringify({ username: name }),
             });
 
             if (!response.ok) {
@@ -27,6 +27,7 @@ const Login = () => {
             const data = await response.json();
             console.log(data);
             alert('Login successful');
+            navigation.navigate('BottomTabNavigator');
         } catch (error) {
             console.error('There was an error with the login request:', error);
             setErrorMessage('Login failed. Please try again.');
@@ -53,7 +54,7 @@ const Login = () => {
     };
 
     const handleLogin = () => {
-        navigation.navigate('BottomTabNavigator');
+        login();
     };
 
     return (
