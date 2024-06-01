@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button, SafeAreaView, StyleSheet, Modal, TouchableOpacity, Text,
-  View, TextInput, Dimensions
+  View, TextInput, Dimensions, Image
 } from "react-native";
 
 //icon
 import { Ionicons } from '@expo/vector-icons';
 import { Octicons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 
 const { width } = Dimensions.get("window");
 
@@ -14,18 +16,174 @@ function PlayWithBot({ navigation }) {
   const handleBackHome = () => {
     navigation.navigate('Home')
   }
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [inputValue, setInputValue] = useState(0);
+  const [botNumber, setBotNumber] = useState('');
+  const [isModalVisible, setModalVisible] = useState(true);
+  const [inputValue, setInputValue] = useState([]);
   const toggleModalVisibility = () => {
-    setModalVisible(!isModalVisible);
+    if (inputValue.length === 4) {
+      setModalVisible(!isModalVisible);
+      const randomUniqueNumber = getRandomUniqueFourDigitNumber();
+      setBotNumber(randomUniqueNumber);
+      console.log("number of bot", randomUniqueNumber);
+    }
   }
-  const [selectedNumbers, setSelectedNumbers] = useState([]);
+  const handleInputNumber = (number) => {
+    if (inputValue.length < 4 && !inputValue.includes(number)) {
+      setInputValue([...inputValue, number]);
+    }
+  }
+  const handleDeleteNumber = () => {
+    if (inputValue.length > 0) {
+      setInputValue(inputValue.slice(0, -1));
+    }
+  }
 
+  const [selectedNumbers, setSelectedNumbers] = useState([]);
   const handleNumberPress = (number) => {
-    if (selectedNumbers.length < 4 && !selectedNumbers.includes(number)) {
+    if (selectedNumbers.length < 4 && (number === 0 || !selectedNumbers.includes(number))) {
       setSelectedNumbers([...selectedNumbers, number]);
     }
   };
+
+  const handleDeleteNumberGuess = () => {
+    if (selectedNumbers.length > 0) {
+      setSelectedNumbers(selectedNumbers.slice(0, -1));
+    }
+  };
+  const [listNumber, setListNumber] = useState([]);
+  const [numberIsCorrect, setNumberIsCorrect] = useState([]);
+  const handleGuess = async () => {
+    //if turn is false return 
+    if (listNumber.length === 52) {
+      console.log("You lose");
+      return;
+    }
+    const number = selectedNumbers.join('');
+    if (number.length < 4) {
+      console.log("Please enter 4 numbers");
+      return;
+    }
+    setListNumber([...listNumber, number]);
+    let count = 0;
+    for (let i = 0; i < 4; i++) {
+      if (botNumber.includes(number[i])) {
+        count++;
+      }
+    }
+    setNumberIsCorrect([...numberIsCorrect, count]);
+    if (number === botNumber) {
+      console.log("You win");
+      return;
+    } else if (count === 4) {
+      console.log("4 number is correct");
+    } else if (count === 1) {
+      console.log("1 number is correct");
+    }
+    else if (count === 2) {
+      console.log("2 number is correct");
+    }
+    else if (count === 3) {
+      console.log("3 number is correct");
+    }
+    else {
+      console.log("0 number is correct");
+    }
+    aiBotGuessNumber();
+    setSelectedNumbers([]);
+  };
+
+  useEffect(() => {
+    console.log(listNumber);
+  }, [listNumber]);
+
+  // AI bot guess number
+  const [isCorect0, setIsCorect0] = useState([]);
+  const [isCorect1, setIsCorect1] = useState([]);
+  const [isCorect2, setIsCorect2] = useState([]);
+  const [isCorect3, setIsCorect3] = useState([]);
+  const [isCorect4, setIsCorect4] = useState([]);
+  const [numbers, setNumbers] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const aiBotGuessNumber = () => {
+    let number = '';
+    const inputValueNumber = inputValue.join('');
+
+    let usedNumbers = [];
+    // use number to random 4 number
+    for (let i = 0; i < 4; i++) {
+      let randomNumber;
+      do {
+        randomNumber = Math.floor(Math.random() * 10);
+      } while (usedNumbers.includes(randomNumber));
+      usedNumbers.push(randomNumber);
+      number += randomNumber;
+    }
+
+    console.log("bot guess number", number);
+    let count = 0;
+    for (let i = 0; i < 4; i++) {
+      if (inputValueNumber.includes(number[i])) {
+        count++;
+      }
+    }
+    if (number === inputValueNumber) {
+      console.log("Bot win");
+    } else if (count === 4) {
+      // push number to isCorect4
+      isCorect4.push(number);
+      console.log("bot 4 number is correct");
+      console.log("is corect 4", isCorect4);
+    } else if (count === 1) {
+      // push number to isCorect1
+      isCorect1.push(number);
+      console.log("bot 1 number is correct");
+      console.log("is corect 1", isCorect1);
+    }
+    else if (count === 2) {
+      // push number to isCorect2
+      isCorect2.push(number);
+      console.log("bot 2 number is correct");
+      console.log("is corect 2", isCorect2);
+    }
+    else if (count === 3) {
+      // push number to isCorect3
+      isCorect3.push(number);
+      console.log("bot 3 number is correct");
+      console.log("is corect 3", isCorect3);
+    }
+    else {
+      // push number to isCorect0
+      isCorect0.push(number);
+      console.log("bot 0 number is correct");
+      console.log("is corect 0", isCorect0);
+    }
+  }
+
+  // ramdom number
+  const getRandomUniqueFourDigitNumber = () => {
+    let numArray = [];
+    for (let i = 0; i < 10; i++) {
+      numArray.push(i);
+    }
+    let result = '';
+    for (let i = 0; i < 4; i++) {
+      const randomIndex = Math.floor(Math.random() * numArray.length);
+      result += numArray[randomIndex];
+      numArray.splice(randomIndex, 1);
+    }
+
+    return result;
+  }
+  // useEffect(() => {
+  //   const randomUniqueNumber = getRandomUniqueFourDigitNumber();
+  //   setBotNumber(randomUniqueNumber);
+  //   console.log("number of bot", randomUniqueNumber);
+  // }, []);
+
+  // create bot guess my number inputValue
+
+
+
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -39,41 +197,86 @@ function PlayWithBot({ navigation }) {
           <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600" }}> {inputValue} </Text>
         </View>
       </View>
-      
-      <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
+      <View style={styles.guess_table}>
+        <Text style={{ fontSize: 20, color: "#fe841d", fontWeight: "bold" }}>Guess Table</Text>
+        <SafeAreaView style={{ flexWrap: "wrap", paddingBottom: 10 }}>
+          {listNumber.map((item, index) => (
+            <View key={index} style={{ paddingTop: 1, marginLeft: 6, paddingRight: 6, flexDirection: "row", borderRightWidth: 1 }}>
+              <Text style={{ fontSize: 20, color: "#02583d", fontWeight: "600" }}> {item} </Text>
+              {numberIsCorrect[index] !== undefined && (
+                <Text style={{ fontSize: 20, color: "#02583d", fontWeight: "600" }}> {numberIsCorrect[index]} </Text>
+              )}
+            </View>
+          ))}
+        </SafeAreaView>
+      </View>
+      <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", backgroundColor: '#fff' }}>
         {[...Array(4)].map((_, index) => (
-          <TextInput key={index} value={selectedNumbers[index] ? selectedNumbers[index].toString() : ""} style={{
-            width: 50, height: 50, backgroundColor: "#ff7e39",
+          <View key={index} style={{
+            width: 50, height: 50, backgroundColor: "#5d7081",
             justifyContent: "center", alignItems: "center", margin: 5,
-            borderRadius: 5, color: "#fff", fontSize: 20, fontWeight: "600"
-          }} />
+            borderRadius: 5
+          }}>
+            <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}> {selectedNumbers[index] !== undefined ? selectedNumbers[index] : ""} </Text>
+          </View>
         ))}
+        <TouchableOpacity style={{ backgroundColor: '#0b9d6a', width: 50, height: 50, justifyContent: "center", alignItems: "center", margin: 5, borderRadius: 5 }} onPress={handleGuess}>
+          <FontAwesome name="send" size={24} color="#fff" />
+        </TouchableOpacity>
       </SafeAreaView>
-      <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+
+      <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", backgroundColor: "#fff" }}>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((item) => (
           <TouchableOpacity key={item} style={{
-            width: 30, height: 30, backgroundColor: "#ff7e39",
+            width: 40, height: 40, backgroundColor: "#ff7e39",
             justifyContent: "center", alignItems: "center", margin: 5,
             borderRadius: 5
           }} onPress={() => handleNumberPress(item)}>
             <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}> {item} </Text>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity style={{ justifyContent: "center", marginLeft: 8 }} onPress={handleDeleteNumberGuess}>
+          <FontAwesome6 name="delete-left" size={30} color="red" />
+        </TouchableOpacity>
       </SafeAreaView>
-      
-      <Button title="Show Modal" onPress={toggleModalVisibility} />
+
+      {/* <Button title="Show Modal" onPress={toggleModalVisibility} /> */}
       <Modal animationType="slide"
         transparent visible={isModalVisible}
         presentationStyle="overFullScreen"
         onDismiss={toggleModalVisibility}>
         <View style={styles.viewWrapper}>
           <View style={styles.modalView}>
-            <TextInput placeholder="Enter something..."
-              value={inputValue} style={styles.textInput}
-              onChangeText={(value) => setInputValue(value)} />
+            <Text style={{ color: "#fe841d", fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>Enter your number</Text>
+            <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
+              {[...Array(4)].map((_, index) => (
+                <View key={index} style={{
+                  width: 50, height: 50, backgroundColor: "#5d7081",
+                  justifyContent: "center", alignItems: "center", margin: 5,
+                  borderRadius: 5
+                }}>
+                  <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}> {inputValue[index] !== undefined ? inputValue[index] : ""} </Text>
+                </View>
+              ))}
+            </SafeAreaView>
 
-            {/** This button is responsible to close the modal */}
-            <Button title="Close" onPress={toggleModalVisibility} />
+            <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((item) => (
+                <TouchableOpacity key={item} style={{
+                  width: 35, height: 35, backgroundColor: "#fed034",
+                  justifyContent: "center", alignItems: "center", margin: 5,
+                  borderRadius: 5
+                }} onPress={() => handleInputNumber(item)}>
+                  <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}> {item} </Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity style={{ justifyContent: "center", marginLeft: 8 }} onPress={handleDeleteNumber}>
+                <FontAwesome6 name="delete-left" size={30} color="red" />
+              </TouchableOpacity>
+            </SafeAreaView>
+            <TouchableOpacity onPress={toggleModalVisibility} style={{ marginTop: 10 }}>
+              <Image source={require('../../../../image/start-the-game.png')} resizeMode="contain" style={{ width: 170, height: 50 }} />
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -133,18 +336,19 @@ const styles = StyleSheet.create({
     elevation: 5,
     transform: [{ translateX: -(width * 0.4) },
     { translateY: -90 }],
-    height: 180,
+    height: 270,
     width: width * 0.8,
     backgroundColor: "#fff",
-    borderRadius: 7,
+    borderRadius: 10,
   },
-  textInput: {
-    width: "80%",
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderColor: "rgba(0, 0, 0, 0.2)",
-    borderWidth: 1,
-    marginBottom: 8,
+  guess_table: {
+    flex: 1,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   }
 });

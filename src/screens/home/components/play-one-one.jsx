@@ -3,7 +3,8 @@ import { useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import io from 'socket.io-client';
-import styles from './play-one-one.styles'; // Import styles từ file styles mới
+import styles from './play-one-one.styles';
+import {createRoomRoute} from '../../../apiRouter/API';
 
 const socket = io('http://192.168.1.6:3000');
 

@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, TextInput } from 'react-native';
 import Svg, { Rect, Path } from 'react-native-svg';
-import { createUserRoute } from '../../apiRouter/API';
-import { useNavigation } from '@react-navigation/native'; // Thêm import này
+import { createUserRoute, getUserByNameRoute } from '../../apiRouter/API';
+import { useNavigation } from '@react-navigation/native';
+import { useData } from '../../HookToGetUserInfo/DataContext';
 
 const Login = () => {
     const [scaleValue] = useState(new Animated.Value(1));
     const [name, setName] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const navigation = useNavigation(); // Sử dụng hook useNavigation
+    const navigation = useNavigation();
+    const { updateUserData } = useData(); // Lấy dữ liệu từ context
 
     const login = async () => {
         try {
-            const response = await fetch(`http://192.168.1.6:8000/user/create`, {
+            const response = await fetch(`${createUserRoute}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -23,11 +25,31 @@ const Login = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-
             const data = await response.json();
             console.log(data);
             alert('Login successful');
-            navigation.navigate('BottomTabNavigator');
+            updateUserData({ data: data }); // Cập nhật dữ liệu người dùng
+            navigation.navigate('BottomTabNavigator', { data: data });
+
+        } catch (error) {
+            console.error('There was an error with the login request:', error);
+            setErrorMessage('Login failed. Please try again.');
+        }
+    };
+    const getUserByName = async () => {
+        try {
+            const response = await fetch(`${getUserByNameRoute}?username=${name}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            console.log(data);
         } catch (error) {
             console.error('There was an error with the login request:', error);
             setErrorMessage('Login failed. Please try again.');
