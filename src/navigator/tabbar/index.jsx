@@ -2,20 +2,26 @@ import React, { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text, View, Dimensions, Image } from "react-native";
 import Home from "../../screens/home/home";
-
 import Profile from "../../screens/profile/profile";
 import ProfileSettings from "../../screens/settings/settings";
 import { getPathDown } from "./curve";
 import { Svg, Path } from "react-native-svg";
 import { scale } from "react-native-size-scaling";
 
-//icon
+// Icon
 import { Octicons } from '@expo/vector-icons';
+import { useRoute } from "@react-navigation/native";
 
 const Tab = createBottomTabNavigator();
 export const BottomTabNavigator = () => {
+  const route = useRoute();
   const [maxWidth, setMaxWidth] = useState(Dimensions.get("window").width);
   const returnpathDown = getPathDown(maxWidth, 60, 50);
+
+  // Lấy dữ liệu từ route.params.data
+  const {data} = route.params;
+
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -55,6 +61,7 @@ export const BottomTabNavigator = () => {
       />
       <Tab.Screen
         name="Home"
+        initialParams={{ data: data }}
         component={Home}
         options={{
           headerShown: false,
