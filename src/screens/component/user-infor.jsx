@@ -6,8 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import { useData } from "../../HookToGetUserInfo/DataContext";
 
 export default function UserInfor() {
+    const { userData } = useData();
+    const { data } = userData;
+    const username = data.user.username;
     return (
         <View style={styles.main_container_info}>
             <View style={styles.main_container_info_header}>
@@ -16,7 +20,7 @@ export default function UserInfor() {
                 </View>
                 <View style={{ alignItems: "center" }}>
                     <Image source={require('../../../image/avatar.png')} style={{ width: 70, height: 70, borderRadius: 50 }} />
-                    <Text style={{ color: "#262c32", fontSize: 20, fontWeight: "bold" }}>John Doe</Text>
+                    <Text style={{ color: "#262c32", fontSize: 20, fontWeight: "bold" }}>{username}</Text>
                 </View>
                 <View style={styles.cricle}>
                     <MaterialCommunityIcons name="gift" size={24} color="white" />
@@ -40,9 +44,9 @@ export default function UserInfor() {
                 </View>
             </View>
         </View>
-
     );
 }
+
 const styles = StyleSheet.create({
     main_container_info: {
         width: "90%",
