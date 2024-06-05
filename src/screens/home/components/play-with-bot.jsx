@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Button, SafeAreaView, StyleSheet, Modal, TouchableOpacity, Text,
-  View, TextInput, Dimensions, Image
+  View, TextInput, Dimensions, Image, ScrollView
 } from "react-native";
 
 //icon
@@ -18,7 +18,14 @@ function PlayWithBot({ navigation }) {
   }
   const [botNumber, setBotNumber] = useState('');
   const [isModalVisible, setModalVisible] = useState(true);
+  const scrollViewRef = useRef();
   const [inputValue, setInputValue] = useState([]);
+  const [allNumber, setAllNumber] = useState([]);
+  useEffect(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, []);
+
+
   const toggleModalVisibility = () => {
     if (inputValue.length === 4) {
       setModalVisible(!isModalVisible);
@@ -27,6 +34,7 @@ function PlayWithBot({ navigation }) {
       console.log("number of bot", randomUniqueNumber);
     }
   }
+  //model input number
   const handleInputNumber = (number) => {
     if (inputValue.length < 4 && !inputValue.includes(number)) {
       setInputValue([...inputValue, number]);
@@ -38,6 +46,7 @@ function PlayWithBot({ navigation }) {
     }
   }
 
+  // chọn số
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   const handleNumberPress = (number) => {
     if (selectedNumbers.length < 4 && (number === 0 || !selectedNumbers.includes(number))) {
@@ -52,6 +61,7 @@ function PlayWithBot({ navigation }) {
   };
   const [listNumber, setListNumber] = useState([]);
   const [numberIsCorrect, setNumberIsCorrect] = useState([]);
+
   const handleGuess = async () => {
     //if turn is false return 
     if (listNumber.length === 52) {
@@ -73,6 +83,11 @@ function PlayWithBot({ navigation }) {
     setNumberIsCorrect([...numberIsCorrect, count]);
     if (number === botNumber) {
       console.log("You win");
+      setAllNumber(prevAllNumber => [
+        ...prevAllNumber,
+        { value: number, type: 'p', result: count },
+        { value: `Bạn đã chiến thắng`, type: 'b', result: count }
+      ]);
       return;
     } else if (count === 4) {
       console.log("4 number is correct");
@@ -88,13 +103,18 @@ function PlayWithBot({ navigation }) {
     else {
       console.log("0 number is correct");
     }
+    setAllNumber(prevAllNumber => [
+      ...prevAllNumber,
+      { value: number, type: 'p', result: count },
+      { value: `Bạn đã đúng ${count} số`, type: 'b', result: count }
+    ]);
     aiBotGuessNumber();
     setSelectedNumbers([]);
   };
 
   useEffect(() => {
-    console.log(listNumber);
-  }, [listNumber]);
+    console.log("all number", allNumber);
+  }, [allNumber]);
 
   // AI bot guess number
   const [isCorect0, setIsCorect0] = useState([]);
@@ -102,7 +122,7 @@ function PlayWithBot({ navigation }) {
   const [isCorect2, setIsCorect2] = useState([]);
   const [isCorect3, setIsCorect3] = useState([]);
   const [isCorect4, setIsCorect4] = useState([]);
-  const [numbers, setNumbers] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const [botGuessNumber, setBotGuessNumber] = useState([]);
   const aiBotGuessNumber = () => {
     let number = '';
     const inputValueNumber = inputValue.join('');
@@ -117,6 +137,7 @@ function PlayWithBot({ navigation }) {
       usedNumbers.push(randomNumber);
       number += randomNumber;
     }
+    setBotGuessNumber([...botGuessNumber, number]);
 
     console.log("bot guess number", number);
     let count = 0;
@@ -126,36 +147,30 @@ function PlayWithBot({ navigation }) {
       }
     }
     if (number === inputValueNumber) {
-      console.log("Bot win");
+      setAllNumber(prevAllNumber => [
+        ...prevAllNumber,
+        { value: number, type: 'b', result: count },
+        { value: `Bot đã chiến thắng`, type: 'p', result: count }
+      ]);
     } else if (count === 4) {
-      // push number to isCorect4
       isCorect4.push(number);
-      console.log("bot 4 number is correct");
-      console.log("is corect 4", isCorect4);
     } else if (count === 1) {
-      // push number to isCorect1
       isCorect1.push(number);
-      console.log("bot 1 number is correct");
-      console.log("is corect 1", isCorect1);
     }
     else if (count === 2) {
-      // push number to isCorect2
       isCorect2.push(number);
-      console.log("bot 2 number is correct");
-      console.log("is corect 2", isCorect2);
     }
     else if (count === 3) {
-      // push number to isCorect3
       isCorect3.push(number);
-      console.log("bot 3 number is correct");
-      console.log("is corect 3", isCorect3);
     }
     else {
-      // push number to isCorect0
       isCorect0.push(number);
-      console.log("bot 0 number is correct");
-      console.log("is corect 0", isCorect0);
     }
+    setAllNumber(prevAllNumber => [
+      ...prevAllNumber,
+      { value: number, type: 'b', result: count },
+      { value: `Bạn đã đúng ${count} số`, type: 'p', result: count }
+    ]);
   }
 
   // ramdom number
@@ -173,16 +188,6 @@ function PlayWithBot({ navigation }) {
 
     return result;
   }
-  // useEffect(() => {
-  //   const randomUniqueNumber = getRandomUniqueFourDigitNumber();
-  //   setBotNumber(randomUniqueNumber);
-  //   console.log("number of bot", randomUniqueNumber);
-  // }, []);
-
-  // create bot guess my number inputValue
-
-
-
 
   return (
     <View style={styles.container}>
@@ -198,17 +203,25 @@ function PlayWithBot({ navigation }) {
         </View>
       </View>
       <View style={styles.guess_table}>
-        <Text style={{ fontSize: 20, color: "#fe841d", fontWeight: "bold" }}>Guess Table</Text>
-        <SafeAreaView style={{ flexWrap: "wrap", paddingBottom: 10 }}>
-          {listNumber.map((item, index) => (
-            <View key={index} style={{ paddingTop: 1, marginLeft: 6, paddingRight: 6, flexDirection: "row", borderRightWidth: 1 }}>
-              <Text style={{ fontSize: 20, color: "#02583d", fontWeight: "600" }}> {item} </Text>
-              {numberIsCorrect[index] !== undefined && (
-                <Text style={{ fontSize: 20, color: "#02583d", fontWeight: "600" }}> {numberIsCorrect[index]} </Text>
-              )}
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          contentContainerStyle={{ alignItems: 'flex-start' }}
+          onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+        >
+          {allNumber.map((num, index) => (
+            <View
+              key={index}
+              style={num.type === 'p' ? styles.messageContainerSent : styles.messageContainer}
+            >
+              <View style={num.type === 'p' ? styles.messageSent : styles.messageReceived}>
+                <Text style={styles.messageText}>{num.value}</Text>
+              </View>
             </View>
           ))}
-        </SafeAreaView>
+        </ScrollView>
       </View>
       <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", backgroundColor: '#fff' }}>
         {[...Array(4)].map((_, index) => (
@@ -350,5 +363,34 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-  }
+  },
+  messageContainer: {
+    flexDirection: 'row',
+    marginVertical: 5,
+    width: '100%'
+  },
+  messageReceived: {
+    backgroundColor: '#e1ffc7',
+    padding: 10,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginLeft: 10,
+    maxWidth: '100%',
+  },
+  messageContainerSent: {
+    flexDirection: 'row',
+    marginVertical: 5,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  messageSent: {
+    backgroundColor: '#d1e7ff',
+    padding: 10,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  messageText: {
+    fontSize: 17,
+  },
 });
