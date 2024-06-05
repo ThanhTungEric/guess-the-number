@@ -2,6 +2,7 @@ export const host = "http://192.168.1.6:8000";
 
 //user
 export const createUserRoute = `${host}/user/create`;
+export const getUserByNameRoute = `${host}/user/userName`;
 
 //room
 export const createRoomRoute = `${host}/room/create`;

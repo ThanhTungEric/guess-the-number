@@ -1,14 +1,12 @@
-import React from "react";
-import { Text, View, StyleSheet, TouchableOpacity, Image} from "react-native";
 import { StatusBar } from 'expo-status-bar';
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 // import component
-import UserInfor from '../component/user-infor'
+import UserInfor from '../component/user-infor';
 //icon
-import { Entypo } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Feather } from '@expo/vector-icons';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { Entypo, Feather, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRoute } from "@react-navigation/native";
 
 function Home({ navigation }) {
   //go to play with bot
@@ -19,6 +17,9 @@ function Home({ navigation }) {
   const handlePressPlayOneToOne = (props) => {
     navigation.navigate('Room')
   }
+  //get user infor
+  const route = useRoute();
+  const { data } = route.params;
   return (
     <View style={styles.container}>
       <View style={styles.header_home}>
