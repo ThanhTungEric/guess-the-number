@@ -12,28 +12,25 @@ const Login = () => {
     const navigation = useNavigation();
     const { updateUserData } = useData(); // Lấy dữ liệu từ context
 
-    const login = async () => {
+    const login = async (username) => {
         try {
-            const response = await fetch(`${createUserRoute}`, {
+            const response = await fetch('/create', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username: name }),
+                body: JSON.stringify({ username })
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                const errorData = await response.json();
+                throw new Error(errorData.error);
             }
-            const data = await response.json();
-            console.log(data);
-            alert('Login successful');
-            updateUserData({ data: data }); // Cập nhật dữ liệu người dùng
-            navigation.navigate('BottomTabNavigator', { data: data });
 
+            const data = await response.json();
+            console.log('User created:', data.user);
         } catch (error) {
-            console.error('There was an error with the login request:', error);
-            setErrorMessage('Login failed. Please try again.');
+            console.error('Error creating user:', error.message);
         }
     };
     const getUserByName = async () => {
