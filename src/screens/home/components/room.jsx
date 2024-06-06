@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 const { width } = Dimensions.get("window");
 
-const socket = io('http://192.168.1.6:3000');
+const socket = io('http://192.168.1.8:3000');
 
 const Room = ({ navigation }) => {
   const [roomNumber, setRoomNumber] = useState('');
@@ -69,7 +69,6 @@ const Room = ({ navigation }) => {
     socket.on('userJoined', handleUserJoined);
 
     return () => {
-      // Hủy lắng nghe khi component unmount
       socket.off('roomJoined', handleRoomJoined);
       socket.off('userJoined', handleUserJoined);
     };
@@ -115,9 +114,9 @@ const Room = ({ navigation }) => {
       Alert.alert("Vui lòng nhập số phòng và số bí mật!");
       return;
     }
-
+  
     console.log("Joining room:", roomNumber);
-    socket.emit('joinRoom', { roomNumber, secretNumber, notification }, (response) => {
+    socket.emit('joinRoom', { roomNumber, secretNumber }, (response) => {
       if (response.error) {
         Alert.alert(response.error);
       } else {
@@ -126,6 +125,40 @@ const Room = ({ navigation }) => {
       }
     });
   };
+  
+  // const createRoom = async () => {
+  //   console.log("Creating room...");
+  //   try {
+  //     const response = await fetch('http://192.168.1.8:8000/room/create', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({ createdBy: '6659f3f1c138d8449c9fdd00' }) // Replace 'userId' with actual user ID
+  //     });
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       console.log("Room created:", data);
+  //       setRoomNumber(data._id); // Assuming data contains the room ID as _id
+  //       setIsOwner(true);
+  //       socket.emit('createRoom', { secretNumber, room: data._id }, (socketResponse) => {
+  //         console.log("aaaaa", socketResponse);
+  //         navigation.navigate('PlayOneToOne', { roomId: data._id, secretNumber, notification, isOwner: true });
+
+  //         if (socketResponse.error) {
+  //           Alert.alert(socketResponse.error);
+  //         } else {
+  //           console.log("Socket room created:", data._id);
+  //         }
+  //       });
+  //     } else {
+  //       Alert.alert(data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error creating room:', error);
+  //     Alert.alert("Error creating room");
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
