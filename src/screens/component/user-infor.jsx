@@ -11,7 +11,9 @@ import { useData } from "../../HookToGetUserInfo/DataContext";
 export default function UserInfor() {
     const { userData } = useData();
     const { data } = userData;
+    
     const username = data.user.username;
+    
     return (
         <View style={styles.main_container_info}>
             <View style={styles.main_container_info_header}>

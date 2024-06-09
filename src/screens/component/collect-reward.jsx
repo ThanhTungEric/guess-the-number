@@ -25,11 +25,11 @@ export default function CollectReward() {
             <View>
                 {rewardData.map((item, index) => {
                     return (
-                        <View key={index} style={{ flexDirection: 'row', borderColor: "#3a3a3a", borderWidth: 1, borderRadius: 10, marginTop: 8 }}>
-                            <Text>{item.missionName}</Text>
-                            <View style={{backgroundColor: "#5d7081", width: 30, height: 30}}>
+                        <View key={index} style={{ flexDirection: 'row', borderColor: "#ffbe2e", borderWidth: 1, borderRadius: 10, marginTop: 8, alignItems: "center", justifyContent: "space-between", paddingHorizontal: 10, height: 45, backgroundColor: "#fed034" }}>
+                            <Text style={{fontSize: 16, color: "#fff"}}>{item.missionName}</Text>
+                            <View style={{flexDirection: "row", alignItems: "center"}}>
                                 <Feather name="heart" size={24} color="#fc4e4f" />
-                                <Text>{item.reward}</Text>
+                                <Text style={{fontSize: 16, marginLeft: 8}}>+ {item.reward}</Text>
                             </View>
                         </View>
                     );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextInput, View, Text, StyleSheet, Alert, TouchableOpacity, Modal, Dimensions } from "react-native";
+import { Button, TextInput, View, Text, StyleSheet, Alert, TouchableOpacity, Modal, Dimensions, SafeAreaView } from "react-native";
 import io from 'socket.io-client';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
@@ -18,10 +18,17 @@ const Room = ({ navigation }) => {
   console.log("roomNumber", roomNumber);
   console.log("secretNumber", secretNumber);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isjoinRoom, setJoinRoom] = useState(false);
+
+  const handleBackHome = () => {
+    navigation.navigate('Home');
+  }
 
   const toggleModalVisibility = () => {
     setModalVisible(!isModalVisible);
-
+  }
+  const toggleModalVisibilityJoinRoom = () => {
+    setJoinRoom(!isjoinRoom);
   }
 
   useEffect(() => {
@@ -114,7 +121,7 @@ const Room = ({ navigation }) => {
       Alert.alert("Vui lòng nhập số phòng và số bí mật!");
       return;
     }
-  
+
     console.log("Joining room:", roomNumber);
     socket.emit('joinRoom', { roomNumber, secretNumber }, (response) => {
       if (response.error) {
@@ -125,7 +132,7 @@ const Room = ({ navigation }) => {
       }
     });
   };
-  
+
   // const createRoom = async () => {
   //   console.log("Creating room...");
   //   try {
@@ -162,13 +169,16 @@ const Room = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="auto" hidden={false} />
       <View style={styles.header}>
         <TouchableOpacity style={styles.cricle_back} onPress={() => handleBackHome()}>
           <Ionicons name="chevron-back" size={30} color="white" />
         </TouchableOpacity>
         <View style={styles.user_number}>
           <TextInput style={styles.input_search_room} placeholder="Search on game" />
-          <Feather name="search" size={24} color="#ff4301" />
+          <TouchableOpacity onPress={toggleModalVisibilityJoinRoom}>
+            <Feather name="search" size={24} color="#ff4301" />
+          </TouchableOpacity>
         </View>
         <TouchableOpacity
           onPress={toggleModalVisibility}
@@ -183,12 +193,29 @@ const Room = ({ navigation }) => {
         onDismiss={toggleModalVisibility}>
         <View style={styles.viewWrapper}>
           <View style={styles.modalView}>
-            <Text style={{ fontSize: 20, marginBottom: 10}}>Create room</Text>
+            <Text style={{ fontSize: 20, marginBottom: 10 }}>Create room</Text>
             <TextInput placeholder="Enter room number" style={styles.input_create_room} onChangeText={setSecretNumber} />
             <TextInput placeholder="Enter your secret number" style={styles.input_create_room} onChangeText={setSecretNumber} />
             <View style={{ flexDirection: "row", width: '90%', justifyContent: "space-around", marginTop: 10 }}>
               <Button title="Close" onPress={toggleModalVisibility} />
               <Button title="Create room" onPress={createRoom} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal animationType="slide"
+        transparent visible={isjoinRoom}
+        presentationStyle="overFullScreen"
+        onDismiss={toggleModalVisibilityJoinRoom}>
+        <View style={styles.viewWrapper}>
+          <View style={styles.modalView}>
+            <Text style={{ fontSize: 20, marginBottom: 10 }}>Join room</Text>
+            <Text>Room number</Text>
+            <TextInput placeholder="Enter your secret number" style={styles.input_create_room} onChangeText={setSecretNumber} />
+            <View style={{ flexDirection: "row", width: '90%', justifyContent: "space-around", marginTop: 10 }}>
+              <Button title="Close" onPress={toggleModalVisibilityJoinRoom} />
+              <Button title="Join room" />
             </View>
           </View>
         </View>
@@ -200,7 +227,7 @@ const Room = ({ navigation }) => {
           <Text style={styles.notificationText}>{notification}</Text>
         </View>
       ) : null}
-      <StatusBar style="auto" />
+
     </View>
   );
 };
@@ -208,6 +235,7 @@ const Room = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    
   },
   input: {
     width: '100%',
