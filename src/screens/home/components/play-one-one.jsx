@@ -1,39 +1,71 @@
 import { AntDesign, FontAwesome, Ionicons, Octicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
+import axios from 'axios';
+import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import io from 'socket.io-client';
+import { useData } from '../../../HookToGetUserInfo/DataContext';
+import { getRoomRoute, guessNumberRoute, leaveRoomRoute } from "../../../apiRouter/API";
+import Guest from './Guest';
 import styles from './play-one-one.styles';
-import {createRoomRoute} from '../../../apiRouter/API';
 
 const socket = io('http://192.168.1.6:3000');
 
 function PlayOneToOne({ navigation }) {
   const route = useRoute();
-  const { roomId, secretNumber, notification, isOwner } = route.params;
   const [selectedNumbers, setSelectedNumbers] = useState(["", "", "", ""]);
   const [hint, setHint] = useState("");
   const [opponentGuess, setOpponentGuess] = useState(null);
-  console.log("roomId", roomId);
-  console.log("secretNumber", secretNumber);
-  console.log("notificationssss", notification);
-  console.log("isOwner", isOwner);
+  const [roomInfo, setRoomInfo] = useState();
+  const { userData } = useData();
+  const { data } = userData;
+  const id = data.user._id;
+  const POLL_INTERVAL = 5000; // Poll every 5 seconds
 
   useEffect(() => {
-    socket.emit('joinGame', { roomId });
+    const initializeRoom = async () => {
+      await getRoomInfo();
+    };
 
-    socket.on('startGame', (message) => {
-      alert(message);
-    });
+    initializeRoom();
 
-    socket.on('opponentGuess', (guess) => {
-      setOpponentGuess(guess);
-    });
+    const intervalId = setInterval(() => {
+      getRoomInfo();
+    }, POLL_INTERVAL);
 
     return () => {
-      socket.disconnect();
+      clearInterval(intervalId);
+      if (roomInfo?.roomNumber && id) {
+        socket.emit('leave-room', { roomId: roomInfo.roomNumber, userId: id });
+        socket.off('opponent-info');
+      }
     };
-  }, [roomId]);
+  }, [id]);
+
+  useEffect(() => {
+    if (roomInfo?.roomNumber && id) {
+      socket.emit('join-room', { roomId: roomInfo.roomNumber, userId: id });
+
+      socket.on('opponent-info', (info) => {
+        setOpponentInfo(info);
+      });
+
+      socket.on('room-updated', () => {
+        getRoomInfo();
+      });
+    }
+  }, [roomInfo]);
+
+  const getRoomInfo = async () => {
+    try {
+      const response = await axios.get(`${getRoomRoute}/${route.params.roomId}`);
+      const data = response.data;
+      setRoomInfo(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handleNumberPress = (number) => {
     const firstEmptyIndex = selectedNumbers.findIndex(num => num === "");
@@ -44,8 +76,21 @@ function PlayOneToOne({ navigation }) {
     }
   };
 
-  const handleBackHome = () => {
-    navigation.navigate('Home');
+  const handleBackHome = async () => {
+    try {
+      const response = await axios.post(leaveRoomRoute, {
+        userId: id,
+        roomId: roomInfo.roomNumber,
+      });
+      console.log(response.data);
+      navigation.navigate('Home');
+      Alert.alert("Bạn đã rời phòng");
+      socket.emit('leave-room', {
+        roomId: roomInfo.roomNumber,
+      });
+    } catch (err) {
+      console.log(err, "err");
+    }
   };
 
   const handleDeletePress = () => {
@@ -58,34 +103,29 @@ function PlayOneToOne({ navigation }) {
     }
   };
 
-  const compareNumber = () => {
-    const number = selectedNumbers.join('');
-    const secretNumberString = secretNumber.toString();
-    let correctNumbers = 0;
-    let correctPositions = 0;
-
-    for (let i = 0; i < number.length; i++) {
-      if (number[i] === secretNumberString[i]) {
-        correctPositions++;
-      } else if (secretNumberString.includes(number[i])) {
-        correctNumbers++;
-      }
+  const handleGuest = async () => {
+    if (!roomInfo || roomInfo?.gameStatus === "waiting") {
+      Alert.alert("Phòng chưa đủ người hoặc thông tin phòng chưa được tải.");
+      return;
     }
 
-    let result = "";
-    if (correctPositions === 4) {
-      result = "Chúc mừng! Bạn đã đoán đúng số.";
-    } else if (correctPositions > 0) {
-      result = `Bạn có ${correctPositions} số đúng vị trí.`;
-    } else if (correctNumbers > 0) {
-      result = `Bạn có ${correctNumbers} số đúng nhưng sai vị trí.`;
-    } else {
-      result = "Không có số nào đúng.";
-    }
-    setHint(result);
-    setSelectedNumbers(["", "", "", ""]);
+    try {
+      const response = await axios.post(guessNumberRoute, {
+        roomNumber: roomInfo.roomNumber,
+        userId: id,
+        number: selectedNumbers.join(''),
+      });
+      console.log(response.data);
 
-    socket.emit('numberGuess', { roomId, guess: number });
+      socket.emit('guess-number', {
+        roomId: roomInfo.roomNumber,
+        userId: id,
+        number: selectedNumbers.join(''),
+      });
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Đã xảy ra lỗi khi gửi dự đoán. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -96,14 +136,14 @@ function PlayOneToOne({ navigation }) {
         </TouchableHighlight>
         <View style={{ alignItems: "center" }}>
           <Text>Số phòng</Text>
-          <Text style={{ fontSize: 20, color: "#f66a1d", fontWeight: "600" }}>{roomId}</Text>
+          <Text style={{ fontSize: 20, color: "#f66a1d", fontWeight: "600" }}>{roomInfo?.roomNumber}</Text>
         </View>
         <View style={styles.user_number}>
           <View style={styles.icon_user_number}>
             <Octicons name="number" size={20} color="#ff7e39" />
           </View>
           <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600" }}>
-            {selectedNumbers.join('')} 
+            {roomInfo?.secretNumber} 
           </Text>
         </View>
       </View>
@@ -117,22 +157,17 @@ function PlayOneToOne({ navigation }) {
         ))}
       </SafeAreaView>
       <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+        {[0,1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
           <TouchableOpacity key={item} style={styles.number_button} onPress={() => handleNumberPress(item)}>
             <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}> {item} </Text>
           </TouchableOpacity>
         ))}
       </SafeAreaView>
-      <SafeAreaView>
-        <View>
-          <Text>Số bí mật của bạn là {secretNumber}</Text>
-        </View>
-      </SafeAreaView>
       <SafeAreaView style={styles.functionButton}>
         <TouchableOpacity onPress={handleDeletePress}>
           <AntDesign name="delete" size={34} color="red" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={compareNumber}>
+        <TouchableOpacity onPress={handleGuest}>
           <FontAwesome name="check" size={34} color="green" />
         </TouchableOpacity>
       </SafeAreaView>
@@ -146,14 +181,20 @@ function PlayOneToOne({ navigation }) {
           <Text style={styles.hintText}>Đối thủ đã đoán: {opponentGuess}</Text>
         </View>
       ) : null}
-      {notification ? (
-        <View style={styles.notificationContainer}>
-          <Text style={styles.notificationText}>{notification}</Text>
-        </View>
-      ) : null}
+
+      <ScrollView  style={styles.guest}>
+        <Guest 
+          userId={id} 
+          roomId={roomInfo?.roomNumber} 
+          createBy={roomInfo?.createdBy} 
+          playerNumbers={roomInfo?.playerNumbers}
+          guesses={roomInfo?.guesses}
+        />
+      </ScrollView>
+      <StatusBar style="auto" />
     </View>
   );
 }
 
-export default PlayOneToOne;
 
+export default PlayOneToOne;

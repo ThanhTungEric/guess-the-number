@@ -1,4 +1,4 @@
-export const host = "http://192.168.1.189:8000";
+export const host = "http://192.168.1.139:8000";
 
 //user
 export const createUserRoute = `${host}/user/create`;
@@ -11,5 +11,6 @@ export const getRoomRoute = `${host}/room/get`;
 export const getRoomListRoute = `${host}/room/getList`;
 export const deleteRoomRoute = `${host}/room/delete`;
 export const startGameRoute = `${host}/room/startGame`;
-export const guessNumberRoute = `${host}/room/guessNumber`;
+export const guessNumberRoute = `${host}/room/guess`;
 export const leaveRoomRoute = `${host}/room/leave`;
+export const getAllRoomRoute = `${host}/room/get-all`;

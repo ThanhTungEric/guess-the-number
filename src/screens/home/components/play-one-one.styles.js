@@ -1,11 +1,12 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#e8e8e8",
+        paddingVertical: 20,
     },
     header: {
         flexDirection: "row",
@@ -83,4 +84,22 @@ export default StyleSheet.create({
         color: '#000',
         textAlign: 'center',
     },
+    logoutContainer: {
+        alignItems: 'center', // Căn giữa icon theo chiều ngang
+        marginBottom: 10, // Thêm khoảng cách dưới nếu cần
+        color: '#fff', // Màu chữ
+        // position: 'absolute',
+        // bottom: 0,
+    },
+    
+    guest: {
+        height: height * 1, // Chiều cao bằng 60% chiều cao của màn hình
+        marginTop: 20,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 16,
+    },
+    
+    
+    
 });

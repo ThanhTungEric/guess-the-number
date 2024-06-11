@@ -1,174 +1,176 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, TextInput, View, Text, StyleSheet, Alert, TouchableOpacity, Modal, Dimensions } from "react-native";
 import io from 'socket.io-client';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import axios from 'axios';
 const { width } = Dimensions.get("window");
-
-const socket = io('http://192.168.1.8:3000');
+import {createRoomRoute, joinRoomRoute, getAllRoomRoute} from "../../../apiRouter/API";
+import { useData } from "../../../HookToGetUserInfo/DataContext";
 
 const Room = ({ navigation }) => {
   const [roomNumber, setRoomNumber] = useState('');
   const [secretNumber, setSecretNumber] = useState('');
   const [notification, setNotification] = useState("");
-  const [isOwner, setIsOwner] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  console.log("roomNumber", roomNumber);
-  console.log("secretNumber", secretNumber);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isJoinRoomVisible, setJoinRoomVisible] = useState(false);
+  const [roomList, setRoomList] = useState([]);
+  const [roomNumberList, setRoomNumberList] = useState([]);
+  const { userData } = useData();
+  const { data } = userData;
+  const id = data.user._id;
+
+
+  const socket = useRef(null); // Sử dụng useRef để lưu trữ socket
+
+  useEffect(() => {
+    socket.current = io('http://192.168.1.8:3000'); // Khởi tạo socket khi component được mount
+
+    // Hủy bỏ socket khi component unmount
+    return () => {
+      socket.current.disconnect();
+    }
+  }, []);
 
   const toggleModalVisibility = () => {
     setModalVisible(!isModalVisible);
-
+    setSecretNumber('');
   }
 
-  useEffect(() => {
-    socket.on('notification', (data) => {
-      setNotification(data.message);
-    });
-    return () => {
-      socket.off('notification');
-    };
-  }, []);
+  const toggleJoinRoomVisibility = () => {
+    setJoinRoomVisible(!isJoinRoomVisible);
+  }
 
-  const handleRoomJoined = (data) => {
-    const roomId = data.room;
-    if (!roomId) {
-      Alert.alert("Phòng không tồn tại. Vui lòng kiểm tra lại số phòng!");
-      return;
-    }
-    console.log("Joined room:", roomId);
-    navigation.navigate('PlayOneToOne', { roomId, secretNumber, notification });
-  };
+  
 
-  const handleUserJoined = (data) => {
-    socket.on('userJoined', (data) => {
-      setNotification(data.message);
-    });
-
-  };
-  socket.on('userJoined', (data) => {
-    setNotification(data.message);
-  });
-
-  useEffect(() => {
-    if (isOwner) {
-      socket.on('notification', (data) => {
-        setNotification(data.message); // Hiển thị thông báo cho chủ phòng khi có người tham gia vào phòng
-      });
-      return () => {
-        socket.off('notification'); // Hủy lắng nghe khi component unmount
-      };
-    }
-  }, [isOwner]);
-
-  useEffect(() => {
-    socket.on('roomJoined', handleRoomJoined);
-    socket.on('userJoined', handleUserJoined);
-
-    return () => {
-      socket.off('roomJoined', handleRoomJoined);
-      socket.off('userJoined', handleUserJoined);
-    };
-  }, [navigation, secretNumber, notification]);
-
-  //   const createRoom = () => {
-  //     if (!secretNumber) {
-  //         Alert.alert("Vui lòng nhập số bí mật!");
-  //         return;
-  //     }
-  //     console.log("Creating room...");
-  //     socket.emit('createRoom', { secretNumber, isOwner: true }, (response) => {
-  //         console.log("Room created:", response.room);
-  //         setRoomNumber(response.room); // Lưu mã phòng vừa tạo
-  //         Alert.alert(`Mã phòng: ${response.room}`);
-  //         navigation.navigate('PlayOneToOne', { roomId: response.room, secretNumber, notification });
-  //     });
-  // };
-
-  const createRoom = () => {
+  const createRoom = async () => {
     if (!secretNumber) {
       Alert.alert("Vui lòng nhập số bí mật!");
       return;
     }
-    console.log("Creating room...");
-    socket.emit('createRoom', { secretNumber }, (response) => {
-      console.log("Room created:", response.room);
-      setRoomNumber(response.room); // Lưu mã phòng vừa tạo
-      if (response.isOwner) {
-        // Nếu người tạo phòng là chủ phòng, chuyển đến màn hình PlayOneToOne với thông tin là chủ phòng
-        navigation.navigate('PlayOneToOne', { roomId: response.room, secretNumber, notification, isOwner: true });
-      } else {
-        // Nếu không phải chủ phòng, chuyển đến màn hình PlayOneToOne với thông tin không phải là chủ phòng
-        navigation.navigate('PlayOneToOne', { roomId: response.room, secretNumber, notification, isOwner: false });
-      }
-    });
-  };
-
-
-
-  const joinRoom = () => {
-    if (!roomNumber || !secretNumber) {
-      Alert.alert("Vui lòng nhập số phòng và số bí mật!");
-      return;
+  
+    try {
+      const response = await axios.post(createRoomRoute, {
+        createdBy: id,
+        playerNumber: secretNumber,
+      });
+      const newRoom = response.data;
+      Alert.alert('Room created successfully'); 
+      socket.current.emit('create-room', {
+        roomNumber: newRoom.roomNumber,
+        secretNumber: secretNumber
+      });
+  
+      toggleModalVisibility(); // Ẩn modal sau khi gửi thông điệ
+      navigation.navigate('PlayOneToOne', { roomId: newRoom.roomNumber, secretNumber });
+      
+      // Cập nhật danh sách phòng
+      getAllRoom();
+    } catch (error) {
+      console.error('Error creating room:', error);
+      Alert.alert('Failed to create room. Please try again later.');
     }
-  
-    console.log("Joining room:", roomNumber);
-    socket.emit('joinRoom', { roomNumber, secretNumber }, (response) => {
-      if (response.error) {
-        Alert.alert(response.error);
-      } else {
-        console.log("Joined room:", response.room);
-        navigation.navigate('PlayOneToOne', { roomId: response.room, secretNumber, notification });
-      }
-    });
   };
   
-  // const createRoom = async () => {
-  //   console.log("Creating room...");
-  //   try {
-  //     const response = await fetch('http://192.168.1.8:8000/room/create', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify({ createdBy: '6659f3f1c138d8449c9fdd00' }) // Replace 'userId' with actual user ID
-  //     });
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       console.log("Room created:", data);
-  //       setRoomNumber(data._id); // Assuming data contains the room ID as _id
-  //       setIsOwner(true);
-  //       socket.emit('createRoom', { secretNumber, room: data._id }, (socketResponse) => {
-  //         console.log("aaaaa", socketResponse);
-  //         navigation.navigate('PlayOneToOne', { roomId: data._id, secretNumber, notification, isOwner: true });
 
-  //         if (socketResponse.error) {
-  //           Alert.alert(socketResponse.error);
-  //         } else {
-  //           console.log("Socket room created:", data._id);
-  //         }
-  //       });
-  //     } else {
-  //       Alert.alert(data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error creating room:', error);
-  //     Alert.alert("Error creating room");
-  //   }
-  // };
+
+  
+
+  const getAllRoom = async () => {
+    try {
+      const response = await axios.get(getAllRoomRoute);
+      const data = response.data;
+      setRoomList(data);
+      setRoomNumberList(data.map(room => room.roomNumber));
+    } catch (error) {
+      console.error('Error getting all room:', error);
+      Alert.alert('Failed to get all room. Please try again later.');
+    }
+  };
+
+  const joinRoom = async () => {
+    if (!roomNumber || !secretNumber) {
+        Alert.alert("Vui lòng nhập số phòng và số bí mật!");
+        return;
+    }
+    if (!roomNumberList.includes(roomNumber)) {
+        Alert.alert("Phòng không tồn tại. Vui lòng kiểm tra lại số phòng!");
+        return;
+    }
+    try {
+        const response = await axios.post(joinRoomRoute, {
+            roomNumber,
+            userId: id,
+            playerNumber: secretNumber,
+        });
+        const data = response.data;
+        if (response.status === 200) {
+            Alert.alert('Room joined successfully');
+
+            // Lắng nghe thông điệp từ server khi tham gia phòng thành công
+            socket.current.on('join-room', (data) => {
+                if (data.room) {
+                    // Đảm bảo rằng bạn đang điều hướng sau khi tham gia phòng thành công
+                    console.log('join-room', data.room);
+                }
+            });
+            // Gửi thông điệp tham gia phòng qua socket
+            socket.current.emit('join-room', { roomNumber, secretNumber });
+            navigation.navigate('PlayOneToOne', { roomId: roomNumber, secretNumber });
+        } else {
+            // Hiển thị thông điệp lỗi từ server
+            Alert.alert(data.message || 'Failed to join room. Please try again later.');
+        }
+    } catch (error) {
+        console.error('Error joining room:', error);
+        if (error.response) {
+            // Phản hồi từ server với mã lỗi và thông điệp cụ thể
+            Alert.alert(`Error ${error.response.status}: ${error.response.data.message}`);
+        } else {
+            // Lỗi không phải từ phản hồi của server
+            Alert.alert('Failed to join room. Please try again later.');
+        }
+    }
+};
+const handleCheckSecretNumber = (text) => {
+  const newText = text.split("").filter((item, index) => text.indexOf(item) === index).join("");
+  if (/^\d*$/.test(newText) && newText.length <= 4) {
+    setSecretNumber(newText);
+  }
+};
+  
+
+  const handleBackHome = () => {
+    navigation.goBack();
+  };
+
+  useEffect(() => {
+    getAllRoom();
+  }, [roomList]);
+  useEffect(() => {
+    setRoomNumberList(roomList.map(room => room.roomNumber));
+  }, [roomList]);
+  //create room
+  useEffect(() => {
+    socket.current.on('create-room', (data) => {
+      console.log('create-room', data);
+    });
+  }, []);
+
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.cricle_back} onPress={() => handleBackHome()}>
+        <TouchableOpacity style={styles.cricle_back} onPress={handleBackHome}>
           <Ionicons name="chevron-back" size={30} color="white" />
         </TouchableOpacity>
         <View style={styles.user_number}>
           <TextInput style={styles.input_search_room} placeholder="Search on game" />
-          <Feather name="search" size={24} color="#ff4301" />
+          <TouchableOpacity onPress={toggleJoinRoomVisibility}>
+            <Feather name="search" size={24} color="#ff4301" />
+          </TouchableOpacity>
         </View>
         <TouchableOpacity
           onPress={toggleModalVisibility}
@@ -180,12 +182,18 @@ const Room = ({ navigation }) => {
       <Modal animationType="slide"
         transparent visible={isModalVisible}
         presentationStyle="overFullScreen"
-        onDismiss={toggleModalVisibility}>
+        onPress={toggleModalVisibility}>
         <View style={styles.viewWrapper}>
           <View style={styles.modalView}>
-            <Text style={{ fontSize: 20, marginBottom: 10}}>Create room</Text>
-            <TextInput placeholder="Enter room number" style={styles.input_create_room} onChangeText={setSecretNumber} />
-            <TextInput placeholder="Enter your secret number" style={styles.input_create_room} onChangeText={setSecretNumber} />
+            <Text style={{ fontSize: 20, marginBottom: 10 }}>Create room</Text>
+            <TextInput
+              placeholder="Enter your secret number"
+              style={styles.input_create_room}
+              onChangeText={(text) => {handleCheckSecretNumber(text)}}
+              value={secretNumber}
+              maxLength={4}
+              keyboardType="numeric"
+            />
             <View style={{ flexDirection: "row", width: '90%', justifyContent: "space-around", marginTop: 10 }}>
               <Button title="Close" onPress={toggleModalVisibility} />
               <Button title="Create room" onPress={createRoom} />
@@ -194,6 +202,22 @@ const Room = ({ navigation }) => {
         </View>
       </Modal>
 
+      <Modal animationType="slide"
+        transparent visible={isJoinRoomVisible}
+        presentationStyle="overFullScreen"
+        onPress={toggleJoinRoomVisibility}>
+        <View style={styles.viewWrapper}>
+          <View style={styles.modalView}>
+            <Text style={{ fontSize: 20, marginBottom: 10 }}>Join room</Text>
+            <TextInput placeholder="Enter room number" style={styles.input_create_room} onChangeText={setRoomNumber} value={roomNumber} />
+            <TextInput placeholder="Enter your secret number" style={styles.input_create_room} onChangeText={setSecretNumber} value={secretNumber}/>
+            <View style={{ flexDirection: "row", width: '90%', justifyContent: "space-around", marginTop: 10 }}>
+              <Button title="Close" onPress={toggleJoinRoomVisibility} />
+              <Button title="Join room" onPress={joinRoom} />
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {notification ? (
         <View style={styles.notificationContainer}>
@@ -246,7 +270,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  user_number: {
+   user_number: {
     flexDirection: "row",
     backgroundColor: "#ffffff",
     paddingHorizontal: 10,
