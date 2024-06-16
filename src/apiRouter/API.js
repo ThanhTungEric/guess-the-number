@@ -1,4 +1,4 @@
-export const host = "http://192.168.1.139:8000";
+export const host = "http://192.168.1.32:8000";
 
 //user
 export const createUserRoute = `${host}/user/create`;

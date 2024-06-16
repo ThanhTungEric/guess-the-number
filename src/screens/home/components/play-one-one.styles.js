@@ -99,6 +99,69 @@ export default StyleSheet.create({
         borderRadius: 10,
         padding: 16,
     },
+    scrollView:{
+        backgroundColor: "#ccc",
+        borderRadius: 10,
+        padding: 10,
+    },
+    guess_table: {
+        flex: 1,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 5,
+        paddingRight: 5,
+        backgroundColor: "#fff",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+      },
+
+
+      container: {
+        flex: 1,
+        padding: 16,
+    },
+    header: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 16,
+        textAlign: 'center',
+    },
+    scrollView: {
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        padding: 10,
+    },
+    messageContainer: {
+        marginBottom: 12,
+    },
+    ownerMessage: {
+        alignSelf: 'flex-start',
+        backgroundColor: "#d1e7dd",
+        borderRadius: 10,
+        padding: 10,
+        marginVertical: 5,
+        maxWidth: '100%',
+    },
+    guestMessage: {
+        alignSelf: 'flex-end',
+        backgroundColor: "#f8d7da",
+        borderRadius: 10,
+        padding: 10,
+        marginVertical: 5,
+        maxWidth: '100%',
+    },
+    ownerText: {
+        color: "#0f5132",
+    },
+    guestText: {
+        color: "#842029",
+    },
+    infoText: {
+        color: "#555",
+        textAlign: "center",
+        marginTop: 10,
+    },
+    
     
     
     

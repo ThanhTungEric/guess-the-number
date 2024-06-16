@@ -162,6 +162,7 @@ const handleCheckSecretNumber = (text) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="auto" hidden={false} />
       <View style={styles.header}>
         <TouchableOpacity style={styles.cricle_back} onPress={handleBackHome}>
           <Ionicons name="chevron-back" size={30} color="white" />
@@ -209,8 +210,9 @@ const handleCheckSecretNumber = (text) => {
         <View style={styles.viewWrapper}>
           <View style={styles.modalView}>
             <Text style={{ fontSize: 20, marginBottom: 10 }}>Join room</Text>
-            <TextInput placeholder="Enter room number" style={styles.input_create_room} onChangeText={setRoomNumber} value={roomNumber} />
-            <TextInput placeholder="Enter your secret number" style={styles.input_create_room} onChangeText={setSecretNumber} value={secretNumber}/>
+            <TextInput placeholder="Enter room number" style={styles.input_create_room} onChangeText={setRoomNumber} value={roomNumber} 
+              keyboardType="numeric" />
+            <TextInput placeholder="Enter your secret number" style={styles.input_create_room} onChangeText={setSecretNumber} maxLength={4} value={secretNumber} keyboardType="numeric"/>
             <View style={{ flexDirection: "row", width: '90%', justifyContent: "space-around", marginTop: 10 }}>
               <Button title="Close" onPress={toggleJoinRoomVisibility} />
               <Button title="Join room" onPress={joinRoom} />
@@ -224,7 +226,7 @@ const handleCheckSecretNumber = (text) => {
           <Text style={styles.notificationText}>{notification}</Text>
         </View>
       ) : null}
-      <StatusBar style="auto" />
+
     </View>
   );
 };
@@ -232,6 +234,7 @@ const handleCheckSecretNumber = (text) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    
   },
   input: {
     width: '100%',
