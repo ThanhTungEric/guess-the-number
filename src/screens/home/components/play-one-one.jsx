@@ -27,7 +27,7 @@ const PlayOneToOne = ({ navigation }) => {
   const [showWinnerAlert, setShowWinnerAlert] = useState(false);
   const [matchingDigitsForGuesses, setMatchingDigitsForGuesses] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [winnerInfo, setWinnerInfo] = useState(null); 
+  const [winnerInfo, setWinnerInfo] = useState(null);
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -139,21 +139,7 @@ const PlayOneToOne = ({ navigation }) => {
     }
     return null;
   };
-
-  const compareNumbers = (num1, num2) => {
-    const str1 = num1 ? num1.toString() : '';
-    const str2 = num2 ? num2.toString() : '';
-    let count = 0;
-    const countedDigits = new Set();
-
-    for (let char of str1) {
-      if (str2.includes(char) && !countedDigits.has(char)) {
-        count++;
-        countedDigits.add(char);
-      }
-    }
-    return count;
-  };
+  
   const toggleModalVisibility = () => {
     setIsModalVisible(!isModalVisible);
   }
@@ -179,28 +165,65 @@ const PlayOneToOne = ({ navigation }) => {
   }, [endRef]);
   const numberEntered = selectedNumbers.join('');
   const numberOpponent = getNumberByOpponent();
-  const checkPositionNumberCorrect = (number) => {
-    if (matchingDigitsForGuesses[number] === 4 && numberOpponent !== numberEntered && !isModalVisible) {
+  console.log("numberEntered", numberEntered);
+  console.log("numberOpponent", numberOpponent);
+  console.log(matchingDigitsForGuesses);
+
+  const checkPositionNumberCorrect = (id) => {
+    const [matchingDigits, correctPositions] = matchingDigitsForGuesses[id] || [0, 0];
+
+    if (matchingDigits === 4 && correctPositions !== 4) {
       return (
         <Text style={styles.positionText}>
-          Nhưng chưa đúng vị trí
+          Chưa đúng vị trí
+        </Text>
+      );
+    }
+    if (correctPositions === 4) {
+      return (
+        <Text style={styles.positionText}>
+          Bạn đã đoán đúng số của đối thủ!
         </Text>
       );
     }
     return null;
   };
 
+
   const handleCompare = (userId, number) => {
-    const opponentNumber = getNumberByOpponent(userId);
+    const opponentNumber = getNumberByOpponent();
     if (!opponentNumber) {
       return [0, 0];
     }
-    if (userId != id) {
-      return compareNumbers(number, opponentNumber);
-    } else {
-      return compareNumbers(opponentNumber, number);
+
+    const str1 = number.toString();
+    const str2 = opponentNumber.toString();
+
+    let matchingDigits = 0;
+    let correctPositions = 0;
+
+    for (let i = 0; i < str1.length; i++) {
+      if (str2.includes(str1[i])) {
+        matchingDigits++;
+      }
+      if (str2[i] === str1[i]) {
+        correctPositions++;
+      }
     }
+
+    return [matchingDigits, correctPositions];
   };
+  useEffect(() => {
+    if (guesses) {
+      const newMatchingDigitsForGuesses = {};
+      guesses.forEach((guess) => {
+        newMatchingDigitsForGuesses[guess._id] = handleCompare(id, guess.number);
+      });
+      setMatchingDigitsForGuesses(newMatchingDigitsForGuesses);
+    }
+  }, [guesses]);
+
+
 
   const handleGuest = async () => {
     if (!roomInfo || roomInfo?.gameStatus === "waiting") {
@@ -236,6 +259,7 @@ const PlayOneToOne = ({ navigation }) => {
         number: number,
         result: responseData.result,
       };
+      setSelectedNumbers(["", "", "", ""]);
       setMatchingDigitsForGuesses((prev) => ({
         ...prev,
         [responseData.guessId]: handleCompare(id, number),
@@ -321,20 +345,25 @@ const PlayOneToOne = ({ navigation }) => {
                   {guess.user === id ? 'Bạn' : 'Đối thủ'} đã đoán số: {guess.number}.
                 </Text>
                 {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
-                  <Text style={styles.matchingDigitsText}> Đúng: {matchingDigitsForGuesses[guess._id]} số</Text>
+                  <Text style={styles.matchingDigitsText}> Đúng: {matchingDigitsForGuesses[guess._id][0]} số</Text>
                 )}
-                {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && isModalVisible
-                 ? checkPositionNumberCorrect(guess._id):null
-                }
+                {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
+                  checkPositionNumberCorrect(guess._id)
+                )}
+              </View>
+            ))}
+            {roomInfo && roomInfo.gameStatus === 'finished' && (
+              <View style={styles.endGameMessage}>
+                <Text style={styles.endGameText}>End Game!</Text>
                 {
-                  matchingDigitsForGuesses[guess._id] === 4 && (
-                    <Text style={styles.positionText}>
-                      End Game!
-                    </Text>
+                  roomInfo.winner === id ? (
+                    <Text style={styles.endGameText}>Chúc mừng! Bạn đã chiến thắng!</Text>
+                  ) : (
+                    <Text style={styles.endGameText}>Rất tiếc! Bạn đã thua!</Text>
                   )
                 }
               </View>
-            ))}
+            )}
           </View>
         </ScrollView>
       </View>
@@ -347,7 +376,7 @@ const PlayOneToOne = ({ navigation }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Image source={winner} style={{ width: 200, height: 200, resizeMode:'contain' }} />
+            <Image source={winner} style={{ width: 200, height: 200, resizeMode: 'contain' }} />
             <Text style={styles.modalText}>Chúc mừng! {winnerInfo?.winnerId === id ? "Đối thủ đã" : "Bạn đã"} đoán đúng số!</Text>
             <TouchableOpacity onPress={toggleModalVisibility} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>Đóng</Text>
@@ -530,6 +559,21 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#282c34',
     fontWeight: 'bold',
+  },
+  endGameMessage: {
+    padding: 15,
+    marginVertical: 5,
+    backgroundColor: '#ffcccb',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: '#ff0000',
+    borderWidth: 5,
+  },
+  endGameText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#ff0000',
   },
 });
 

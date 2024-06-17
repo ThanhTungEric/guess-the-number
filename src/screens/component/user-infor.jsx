@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View, Image, StyleSheet } from "react-native";
 //icon
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -13,6 +13,26 @@ export default function UserInfor() {
     const { data } = userData;
     
     const username = data.user.username;
+    const point = data.user.point;
+    const numberWin = data.user.numberWin;
+    const numberLose = data.user.numberLose;
+    const ranking = numberWin - numberLose;
+    const [currentPoint, setCurrentPoint] = useState(point);
+    useEffect(() => {
+        setCurrentPoint(point);
+    }, [point]);
+    console.log(point);
+    
+    const calculateLevel = (ranking) => {
+        let level = Math.floor((ranking - 1) / 100) + 1;
+        return level;
+    }
+    console.log(calculateLevel(ranking));
+
+    useEffect(() => {
+        calculateLevel(ranking);
+    }
+    , [ranking]);
     
     return (
         <View style={styles.main_container_info}>
@@ -32,17 +52,17 @@ export default function UserInfor() {
                 <View style={{ alignItems: "center", width: "33%" }}>
                     <FontAwesome6 name="ranking-star" size={24} color="white" />
                     <Text style={{ color: "#fff", fontSize: 16 }}>Ranking</Text>
-                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> -2 </Text>
+                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> {ranking} </Text>
                 </View>
                 <View style={{ alignItems: "center", width: "33%" }}>
                     <FontAwesome5 name="medal" size={24} color="white" />
                     <Text style={{ color: "#fff", fontSize: 15 }}>Total Points</Text>
-                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> 1200 </Text>
+                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> {point} </Text>
                 </View>
                 <View style={{ alignItems: "center", width: "33%" }}>
                     <AntDesign name="star" size={24} color="#ffd433" />
                     <Text style={{ color: "#fff", fontSize: 15 }}>Level</Text>
-                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> 85/900 </Text>
+                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> {calculateLevel(ranking)} </Text>
                 </View>
             </View>
         </View>
