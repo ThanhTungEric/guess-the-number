@@ -257,7 +257,7 @@ function PlayWithBot({ navigation }) {
       <Modal animationType="slide"
         transparent visible={isModalVisible}
         presentationStyle="overFullScreen"
-        onDismiss={toggleModalVisibility}>
+        onPress={toggleModalVisibility}>
         <View style={styles.viewWrapper}>
           <View style={styles.modalView}>
             <Text style={{ color: "#fe841d", fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>Enter your number</Text>
