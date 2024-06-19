@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, TextInput, Image, Modal, Dimensions, ImageBackground } from 'react-native';
 import { createUserRoute, getUserByNameRoute } from '../../apiRouter/API';
 import { useNavigation } from '@react-navigation/native';
@@ -6,6 +6,7 @@ import { useData } from '../../HookToGetUserInfo/DataContext';
 import { StatusBar } from 'expo-status-bar';
 import logo from '../../../image/guessnumber-removebg.png';
 import backgroud from '../../../image/xchJnRzvQW-min.png';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 const { width } = Dimensions.get("window");
 
 const Login = () => {
@@ -15,6 +16,29 @@ const Login = () => {
     const navigation = useNavigation();
     const { updateUserData } = useData(); // Lấy dữ liệu từ context
     const [isModalVisible, setIsModalVisible] = useState(false);
+    //get user from async storage
+
+    const [userDataLocal, setUserDataLocal] = useState(null);
+
+    useEffect(() => {
+        const checkUserData = async () => {
+            try {
+                const userData = await AsyncStorage.getItem('@user_data');
+                setUserDataLocal(userData);
+                if (userData !== null) {
+                    const data = JSON.parse(userData);
+                    updateUserData({ data: data });
+                    navigation.navigate('BottomTabNavigator', { data: data });
+                } else {
+                    setIsModalVisible(true);
+                }
+            } catch (e) {
+                console.error('Failed to load user data from AsyncStorage', e);
+            }
+        };
+
+        checkUserData();
+    }, []);
 
     const login = async () => {
         try {
@@ -32,7 +56,8 @@ const Login = () => {
             const data = await response.json();
             console.log(data);
             alert('Login successful');
-            updateUserData({ data: data }); // Cập nhật dữ liệu người dùng
+            await AsyncStorage.setItem('@user_data', JSON.stringify(data));
+            updateUserData({ data: data });
             navigation.navigate('BottomTabNavigator', { data: data });
 
         } catch (error) {
@@ -80,7 +105,12 @@ const Login = () => {
     };
 
     const handleLogin = () => {
-        login();
+        if (!userDataLocal) {
+            login();
+        } else {
+            getUserByName();
+            navigation.navigate('BottomTabNavigator', { data: userDataLocal });
+        }
     };
     const toggleModalVisibility = () => {
         setIsModalVisible(!isModalVisible);
