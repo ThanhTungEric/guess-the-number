@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, TextInput, Image, Modal, Dimensions, ImageBackground } from 'react-native';
 import { createUserRoute, getUserByNameRoute } from '../../apiRouter/API';
 import { useNavigation } from '@react-navigation/native';
-import { useData } from '../../HookToGetUserInfo/DataContext';
 import { StatusBar } from 'expo-status-bar';
+import React, { useState } from 'react';
+import { Animated, Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import logo from '../../../image/guessnumber-removebg.png';
 import backgroud from '../../../image/xchJnRzvQW-min.png';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { createUserRoute, getUserByNameRoute } from '../../apiRouter/API';
+import { useData } from '../../HookToGetUserInfo/DataContext';
 const { width } = Dimensions.get("window");
 
 const Login = () => {
@@ -118,51 +121,51 @@ const Login = () => {
     return (
         <View style={styles.container}>
             {/* <ImageBackground source={backgroud} style={{ width: "100%", height: "100%", justifyContent: "space-around", alignItems: "center" }}> */}
-                <StatusBar style="auto" />
-                <Image source={logo} style={{ width: 200, height: 200}} />
-                <View style={{ height: "20%", width: "100%", marginTop: 20, paddingLeft: 20 }}>
-                    <View style={{ flexDirection: "row" }}>
-                        <Text style={{ fontSize: 50, color: "#23c393" }}>win </Text>
-                        <Text style={{ fontSize: 50, color: "#fff" }}>by fun</Text>
-                    </View>
-                    <Text style={{ fontSize: 20, color: "#fff" }}>Play unlimited games and win prizes</Text>
+            <StatusBar style="auto" />
+            <Image source={logo} style={{ width: 200, height: 200 }} />
+            <View style={{ height: "20%", width: "100%", marginTop: 20, paddingLeft: 20 }}>
+                <View style={{ flexDirection: "row" }}>
+                    <Text style={{ fontSize: 50, color: "#23c393" }}>win </Text>
+                    <Text style={{ fontSize: 50, color: "#fff" }}>by fun</Text>
                 </View>
-                <TouchableOpacity style={{ backgroundColor: "#22bb91", width: "80%", height: 45, borderRadius: 10, justifyContent: "center", alignItems: "center" }}
-                    onPress={toggleModalVisibility}>
-                    <Text style={{ color: "#fff", fontSize: 17, fontWeight: "900" }}>Get started</Text>
-                </TouchableOpacity>
+                <Text style={{ fontSize: 20, color: "#fff" }}>Play unlimited games and win prizes</Text>
+            </View>
+            <TouchableOpacity style={{ backgroundColor: "#22bb91", width: "80%", height: 45, borderRadius: 10, justifyContent: "center", alignItems: "center" }}
+                onPress={toggleModalVisibility}>
+                <Text style={{ color: "#fff", fontSize: 17, fontWeight: "900" }}>Get started</Text>
+            </TouchableOpacity>
 
-                <Modal animationType="slide"
-                    transparent visible={isModalVisible}
-                    presentationStyle="overFullScreen"
-                    onDismiss={toggleModalVisibility}>
-                    <View style={styles.viewWrapper}>
-                        <View style={styles.modalView}>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter your name"
-                                value={name}
-                                onChangeText={setName}
-                            />
+            <Modal animationType="slide"
+                transparent visible={isModalVisible}
+                presentationStyle="overFullScreen"
+                onPress={toggleModalVisibility}>
+                <View style={styles.viewWrapper}>
+                    <View style={styles.modalView}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your name"
+                            value={name}
+                            onChangeText={setName}
+                        />
 
-                            {errorMessage ? (
-                                <Text style={styles.errorText}>{errorMessage}</Text>
-                            ) : null}
+                        {errorMessage ? (
+                            <Text style={styles.errorText}>{errorMessage}</Text>
+                        ) : null}
 
-                            <View style={{ flexDirection: 'row', width: "90%", justifyContent: "flex-end", paddingRight: 10 }}>
-                                <TouchableOpacity onPress={toggleModalVisibility} style={{ backgroundColor: "#d85762", padding: 8, justifyContent: 'center', alignItems: "center", borderRadius: 10, width: 70 }}>
-                                    <Text style={{ color: "#fff", fontSize: 16 }}>Cancel</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleLogin}
-                                    onPressIn={handlePressIn}
-                                    onPressOut={handlePressOut}
-                                    style={{ backgroundColor: "#22BB91", padding: 8, justifyContent: 'center', alignItems: "center", borderRadius: 10, width: 70, marginLeft: 10 }}>
-                                    <Text style={{ fontSize: 17, color: '#fff', fontWeight: "700" }}>Play</Text>
-                                </TouchableOpacity>
-                            </View>
+                        <View style={{ flexDirection: 'row', width: "90%", justifyContent: "flex-end", paddingRight: 10 }}>
+                            <TouchableOpacity onPress={toggleModalVisibility} style={{ backgroundColor: "#d85762", padding: 8, justifyContent: 'center', alignItems: "center", borderRadius: 10, width: 70 }}>
+                                <Text style={{ color: "#fff", fontSize: 16 }}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleLogin}
+                                onPressIn={handlePressIn}
+                                onPressOut={handlePressOut}
+                                style={{ backgroundColor: "#22BB91", padding: 8, justifyContent: 'center', alignItems: "center", borderRadius: 10, width: 70, marginLeft: 10 }}>
+                                <Text style={{ fontSize: 17, color: '#fff', fontWeight: "700" }}>Play</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
-                </Modal>
+                </View>
+            </Modal>
             {/* </ImageBackground> */}
         </View>
     );
