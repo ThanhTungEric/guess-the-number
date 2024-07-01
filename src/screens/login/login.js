@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Animated, Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import logo from '../../../image/guessnumber-removebg.png';
-import { createUserRoute, getUserByNameRoute } from '../../apiRouter/API';
+import { createUserRoute } from '../../apiRouter/API';
 import { useData } from '../../HookToGetUserInfo/DataContext';
 const { width } = Dimensions.get("window");
 
@@ -34,25 +34,6 @@ const Login = () => {
             updateUserData({ data: data }); // Cập nhật dữ liệu người dùng
             navigation.navigate('BottomTabNavigator', { data: data });
 
-        } catch (error) {
-            console.error('There was an error with the login request:', error);
-            setErrorMessage('Login failed. Please try again.');
-        }
-    };
-    const getUserByName = async () => {
-        try {
-            const response = await fetch(`${getUserByNameRoute}?username=${name}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            console.log(data);
         } catch (error) {
             console.error('There was an error with the login request:', error);
             setErrorMessage('Login failed. Please try again.');
