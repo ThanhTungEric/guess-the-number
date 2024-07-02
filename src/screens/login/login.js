@@ -3,13 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated, TextInput, Image, M
 import { createUserRoute, getUserByNameRoute } from '../../apiRouter/API';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
-import { Animated, Dimensions, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import logo from '../../../image/guessnumber-removebg.png';
 import backgroud from '../../../image/xchJnRzvQW-min.png';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
-import { createUserRoute, getUserByNameRoute } from '../../apiRouter/API';
 import { useData } from '../../HookToGetUserInfo/DataContext';
+
 const { width } = Dimensions.get("window");
 
 const Login = () => {
