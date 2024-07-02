@@ -3,7 +3,9 @@ export const host = "http://192.168.1.8:8000";
 //user
 export const createUserRoute = `${host}/user/create`;
 export const getUserByNameRoute = `${host}/user/userName`;
-export const getUserByIdRoute = `${host}/user/userId`;
+export const getUserByIdRoute = `${host}/user`;
+export const attendanceRoute = `${host}/user/attendance`;
+export const missionsUserRoute = `${host}/user/missions`;
 
 //room
 export const createRoomRoute = `${host}/room/create`;
