@@ -6,13 +6,13 @@ import { Alert, Dimensions, Image, Modal, SafeAreaView, ScrollView, StatusBar, S
 import io from 'socket.io-client';
 import { useData } from '../../../HookToGetUserInfo/DataContext';
 const { width } = Dimensions.get("window");
-import winner from '../components/img/win.jpg';
 
 import { getRoomRoute, guessNumberRoute, leaveRoomRoute } from "../../../apiRouter/API";
 
 const socket = io('http://192.168.1.139:3000');
 
 const PlayOneToOne = ({ navigation }) => {
+  const winner = require('../components/img/win.jpg');
   const scrollViewRef = useRef();
   const route = useRoute();
   const [selectedNumbers, setSelectedNumbers] = useState(["", "", "", ""]);
@@ -30,6 +30,8 @@ const PlayOneToOne = ({ navigation }) => {
   const [winnerInfo, setWinnerInfo] = useState(null);
   const endRef = useRef(null);
 
+  const [alertShown, setAlertShown] = useState(false);
+
   useEffect(() => {
     if (guesses) {
       const newMatchingDigitsForGuesses = {};
@@ -39,7 +41,9 @@ const PlayOneToOne = ({ navigation }) => {
       setMatchingDigitsForGuesses(newMatchingDigitsForGuesses);
     }
   }, [guesses]);
+
   const sortedGuesses = Array.isArray(guesses) ? guesses.sort((a, b) => a.createdAt - b.createdAt) : [];
+
   useEffect(() => {
     const initializeRoom = async () => {
       await getRoomInfo();
@@ -66,7 +70,7 @@ const PlayOneToOne = ({ navigation }) => {
       socket.on('room-updated', () => {
         getRoomInfo();
       });
-      socket.on('game-won', (winnerInfo) => { // Lắng nghe sự kiện chiến thắng
+      socket.on('game-won', (winnerInfo) => { // Listen for win event
         setWinnerInfo(winnerInfo);
         setShowWinnerAlert(true);
         setIsModalVisible(true);
@@ -77,6 +81,13 @@ const PlayOneToOne = ({ navigation }) => {
   useEffect(() => {
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, []);
+
+  useEffect(() => {
+    if (checkMember() && !alertShown) {
+      Alert.alert("Đã có người chơi tham gia");
+      setAlertShown(true); // Mark alert as shown
+    }
+  }, [roomInfo, alertShown]);
 
   const getRoomInfo = async () => {
     try {
@@ -103,7 +114,6 @@ const PlayOneToOne = ({ navigation }) => {
         userId: id,
         roomId: roomInfo.roomNumber,
       });
-      console.log(response.data);
       navigation.navigate('Home');
       Alert.alert("Bạn đã rời phòng");
       socket.emit('leave-room', {
@@ -139,10 +149,11 @@ const PlayOneToOne = ({ navigation }) => {
     }
     return null;
   };
-  
+
   const toggleModalVisibility = () => {
     setIsModalVisible(!isModalVisible);
-  }
+  };
+
   const handleClickOutsideEndRef = (event) => {
     if (endRef.current && !endRef.current.contains(event.nativeEvent.target)) {
       const { width, height } = Dimensions.get("window");
@@ -163,11 +174,9 @@ const PlayOneToOne = ({ navigation }) => {
       listener.remove();
     };
   }, [endRef]);
+
   const numberEntered = selectedNumbers.join('');
   const numberOpponent = getNumberByOpponent();
-  console.log("numberEntered", numberEntered);
-  console.log("numberOpponent", numberOpponent);
-  console.log(matchingDigitsForGuesses);
 
   const checkPositionNumberCorrect = (id) => {
     const [matchingDigits, correctPositions] = matchingDigitsForGuesses[id] || [0, 0];
@@ -188,7 +197,6 @@ const PlayOneToOne = ({ navigation }) => {
     }
     return null;
   };
-
 
   const handleCompare = (userId, number) => {
     const opponentNumber = getNumberByOpponent();
@@ -213,17 +221,17 @@ const PlayOneToOne = ({ navigation }) => {
 
     return [matchingDigits, correctPositions];
   };
-  useEffect(() => {
-    if (guesses) {
-      const newMatchingDigitsForGuesses = {};
-      guesses.forEach((guess) => {
-        newMatchingDigitsForGuesses[guess._id] = handleCompare(id, guess.number);
-      });
-      setMatchingDigitsForGuesses(newMatchingDigitsForGuesses);
+
+  const getTurn = () => {
+    if (roomInfo?.currentTurn === id) {
+      return (
+        <Text style={{ fontSize: 13, color: "#000", fontWeight: "600", color: "#4da8cb" }}>Lượt của bạn</Text>
+      );
     }
-  }, [guesses]);
-
-
+    return (
+      <Text style={{ fontSize: 13, color: "#000", fontWeight: "600" }}>Lượt của đối thủ</Text>
+    );
+  };
 
   const handleGuest = async () => {
     if (!roomInfo || roomInfo?.gameStatus === "waiting") {
@@ -245,13 +253,11 @@ const PlayOneToOne = ({ navigation }) => {
       return;
     }
     try {
-      console.log("Making a guess with the number:", number);
       const response = await axios.post(guessNumberRoute, {
         roomNumber: roomInfo.roomNumber,
         userId: id,
         number: number,
       });
-      console.log("Response data:", response.data);
       const responseData = response.data;
       setRs(responseData);
       const guessInfo = {
@@ -279,9 +285,24 @@ const PlayOneToOne = ({ navigation }) => {
     }
   };
 
+  const checkMember = () => {
+    return roomInfo?.players.length === 2;
+  };
+
+  const hiddenMember = () => {
+    return !checkMember();
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#0082B4ed" barStyle="light-content" />
+      {hiddenMember() && (
+        <View style={{ backgroundColor: "#FF7E39", padding: 10, alignItems: "center" }}>
+          <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600" }}>
+            Chờ đủ người chơi
+          </Text>
+        </View>
+      )}
       <View style={styles.header}>
         <TouchableHighlight style={styles.circleBack} onPress={handleBackHome}>
           <Ionicons name="chevron-back" size={30} color="white" />
@@ -290,13 +311,19 @@ const PlayOneToOne = ({ navigation }) => {
           <Text>Số phòng</Text>
           <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}>{roomInfo?.roomNumber}</Text>
         </View>
-        <View style={styles.userNumber}>
-          <View style={styles.iconUserNumber}>
-            <Octicons name="number" size={20} color="#ff7e39" />
+
+        <View style={styles.bound}>
+          <View style={styles.userNumber}>
+            <View style={styles.iconUserNumber}>
+              <Octicons name="number" size={20} color="#ff7e39" />
+            </View>
+            <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600", marginLeft: 5 }}>
+              {getNumberByUser()}
+            </Text>
           </View>
-          <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600", marginLeft: 5 }}>
-            {getNumberByUser()}
-          </Text>
+          <View style={{ marginLeft: 10, marginTop: 10 }}>
+            {getTurn()}
+          </View>
         </View>
       </View>
       <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
@@ -338,7 +365,7 @@ const PlayOneToOne = ({ navigation }) => {
                 style={[
                   guess.user === id ? styles.ownerMessage : styles.guestMessage,
                   styles.message,
-                  guess.user === id ? styles.ownerMessageUnique : styles.guestMessageUnique, // Thêm style cho hình dạng đặc biệt
+                  guess.user === id ? styles.ownerMessageUnique : styles.guestMessageUnique, // Special shape style
                 ]}
               >
                 <Text style={guess.user === id ? styles.ownerText : styles.guestText}>

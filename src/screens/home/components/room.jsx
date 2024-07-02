@@ -63,14 +63,23 @@ const Room = ({ navigation }) => {
         roomNumber: newRoom.roomNumber,
         secretNumber: secretNumber
       });
+  
+      // Add new room to roomList
+      setRoomList(prevRoomList => [...prevRoomList, newRoom]);
+  
       toggleModalVisibility();
       navigation.navigate('PlayOneToOne', { roomId: newRoom.roomNumber, secretNumber });
-      getAllRoom();
     } catch (error) {
       console.error('Error creating room:', error);
       Alert.alert('Failed to create room. Please try again later.');
     }
   };
+  
+  // useEffect(() => {
+  //   createRoom();
+  //   getAllRoom();
+
+  // }, [createRoom]);
 
   const getAllRoom = async () => {
     try {
@@ -219,6 +228,14 @@ const Room = ({ navigation }) => {
       }
     </View>
   );
+  useEffect(() => {
+    socket.current.on('create-room', (data) => {
+      console.log('create-room', data);
+      renderRoomList();
+      renderItem();
+    });
+  }, [roomList]);
+
   // API delete all room theo id người tạo
   const deleteAllRoom = async () => {
     try {
