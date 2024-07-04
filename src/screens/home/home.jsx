@@ -7,7 +7,7 @@ import UserInfor from '../component/user-infor';
 //icon
 import { Entypo, Feather, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute } from "@react-navigation/native";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 function Home({ navigation }) {
   //go to play with bot
   const handlePress = (props) => {
@@ -20,6 +20,15 @@ function Home({ navigation }) {
   //get user infor
   const route = useRoute();
   const { data } = route.params;
+// test delete @user_data from asyn
+  const removeValue = async () => {
+    try {
+      await AsyncStorage.removeItem('@user_data')
+    } catch (e) {
+      // remove error
+    }
+    console.log('Done.')
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header_home}>
@@ -63,6 +72,9 @@ function Home({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
+      <TouchableOpacity style={{width: 100, height: 100, backgroundColor: "pink"}} onPress={removeValue}>
+        <Text>Remove</Text>
+      </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
   );

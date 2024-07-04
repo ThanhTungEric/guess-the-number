@@ -5,11 +5,13 @@ import { StatusBar } from 'expo-status-bar';
 import UserInfor from '../component/user-infor'
 import CollectReward from "../component/collect-reward";
 
+import MainFriend from "./friend/mainFriend";
+
 function Profile() {
   return (
     <View style={styles.container}>
       <View style={styles.header_home}>
-        <UserInfor />
+        <MainFriend />
       </View>
       <View style={styles.container_body}>
         <CollectReward />

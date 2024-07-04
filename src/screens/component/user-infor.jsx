@@ -16,6 +16,7 @@ export default function UserInfor() {
     const point = data.user.point;
     const numberWin = data.user.numberWin;
     const numberLose = data.user.numberLose;
+    const avatar = data.user.avatar;
     const ranking = numberWin - numberLose;
     const [currentPoint, setCurrentPoint] = useState(point);
     useEffect(() => {
@@ -41,7 +42,7 @@ export default function UserInfor() {
                     <Ionicons name="mail" size={24} color="white" />
                 </View>
                 <View style={{ alignItems: "center" }}>
-                    <Image source={require('../../../image/avatar.png')} style={{ width: 70, height: 70, borderRadius: 50 }} />
+                    <Image source={{uri: avatar}} style={{ width: 70, height: 70, borderRadius: 50 }} />
                     <Text style={{ color: "#262c32", fontSize: 20, fontWeight: "bold" }}>{username}</Text>
                 </View>
                 <View style={styles.cricle}>
