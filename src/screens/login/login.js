@@ -6,7 +6,6 @@ import { StatusBar } from 'expo-status-bar';
 import logo from '../../../image/guessnumber-removebg.png';
 import backgroud from '../../../image/xchJnRzvQW-min.png';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
-import { createUserRoute } from '../../apiRouter/API';
 import { useData } from '../../HookToGetUserInfo/DataContext';
 
 const { width } = Dimensions.get("window");
@@ -100,7 +99,7 @@ const Login = () => {
     }
     return (
         <View style={styles.container}>
-            {/* <ImageBackground source={backgroud} style={{ width: "100%", height: "100%", justifyContent: "space-around", alignItems: "center" }}> */}
+            <ImageBackground source={backgroud} style={{ width: "100%", height: "100%", justifyContent: "space-around", alignItems: "center" }}>
             <StatusBar style="auto" />
             <Image source={logo} style={{ width: 200, height: 200 }} />
             <View style={{ height: "20%", width: "100%", marginTop: 20, paddingLeft: 20 }}>
@@ -146,7 +145,7 @@ const Login = () => {
                     </View>
                 </View>
             </Modal>
-            {/* </ImageBackground> */}
+            </ImageBackground>
         </View>
     );
 };

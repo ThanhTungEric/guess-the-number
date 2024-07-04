@@ -9,7 +9,7 @@ const { width } = Dimensions.get("window");
 
 import { getRoomRoute, guessNumberRoute, leaveRoomRoute } from "../../../apiRouter/API";
 
-const socket = io('http://192.168.1.139:3000');
+const socket = io('http://192.168.114.154:3000');
 
 const PlayOneToOne = ({ navigation }) => {
   const winner = require('../components/img/win.jpg');

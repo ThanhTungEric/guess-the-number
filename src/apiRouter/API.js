@@ -1,4 +1,4 @@
-export const host = "http://192.168.1.8:8000";
+export const host = "http://14.225.207.218";
 
 //user
 export const createUserRoute = `${host}/user/create`;
@@ -18,3 +18,11 @@ export const guessNumberRoute = `${host}/room/guess`;
 export const leaveRoomRoute = `${host}/room/leave`;
 export const getAllRoomRoute = `${host}/room/get-all`;
 export const deleteAllRoomRoute = `${host}/room/delete-rooms`;
+
+//friend
+export const addFriendRoute = `${host}/friend/add`;
+export const acceptFriendRoute = `${host}/friend/accept`;
+export const declineFriendRoute = `${host}/friend/decline`;
+export const getFriendRoute = `${host}/friend/get`;
+export const deleteFriendRoute = `${host}/friend/delete`;
+export const searchUserRoute = `${host}/user/search`;
