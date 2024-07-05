@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Button, Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import io from 'socket.io-client';
-import { createRoomRoute, deleteAllRoomRoute, getAllRoomRoute, joinRoomRoute } from "../../../apiRouter/API";
+import { createRoomRoute, deleteAllRoomRoute, getAllRoomRoute, joinRoomRoute,host } from "../../../apiRouter/API";
 import { useData } from "../../../HookToGetUserInfo/DataContext";
 const { width } = Dimensions.get("window");
 
@@ -24,7 +24,7 @@ const Room = ({ navigation }) => {
   const socket = useRef(null);
 
   useEffect(() => {
-    socket.current = io('http://192.168.1.8:3000');
+    socket.current = io(`${host}`);
     return () => {
       socket.current.disconnect();
     }

@@ -43,7 +43,6 @@ export default function ListFriend() {
             }
             const data = await response.json();
             setListFriendData(data.friends);
-            console.log(data);
         } catch (error) {
             console.error('There was a problem with your fetch operation:', error);
         }
@@ -88,7 +87,6 @@ export default function ListFriend() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            console.log("accept friend success");
             getListFriend();
             setSearchUserData([]);
         } catch (error) {
@@ -122,7 +120,6 @@ export default function ListFriend() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            console.log("delete friend success");
             getListFriend();
         } catch (error) {
             console.error('There was a problem with your fetch operation:', error);
@@ -186,7 +183,7 @@ export default function ListFriend() {
                                         style={{ flexDirection: "row", marginLeft: 8, padding: 5, borderRadius: 10, alignItems: "center", width: "23%", height: 35, justifyContent: "center", paddingHorizontal: 8, backgroundColor: "#fd3730" }}>
                                         <Text style={{ fontSize: 16, color: "#fff" }}>Delete</Text>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={{ flexDirection: "row", marginLeft: 8, padding: 5, borderRadius: 10, alignItems: "center", width: "23%", height: 35, justifyContent: "center", paddingHorizontal: 8, backgroundColor: "#00cf66" }}>
+                                    <TouchableOpacity style={{ flexDirection: "row", marginLeft: 8, padding: 5, borderRadius: 10, alignItems: "center", width: "23%", height: 35, justifyContent: "center", paddingHorizontal: 8, borderColor: "#edeef2", borderWidth: 1 }}>
                                         <Image style={{ width: 30, height: 30 }} source={require("../image/5930147.png")} />
                                     </TouchableOpacity>
                                 </View>
