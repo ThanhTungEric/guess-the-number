@@ -18,6 +18,8 @@ export default function UserInfor() {
     const numberLose = data.user.numberLose;
     const avatar = data.user.avatar;
     const ranking = numberWin - numberLose;
+    const level = data.user.level;
+    const coin = data.user.coin;
     const [currentPoint, setCurrentPoint] = useState(point);
     useEffect(() => {
         setCurrentPoint(point);
@@ -28,8 +30,6 @@ export default function UserInfor() {
         let level = Math.floor((ranking - 1) / 100) + 1;
         return level;
     }
-    console.log(calculateLevel(ranking));
-
     useEffect(() => {
         calculateLevel(ranking);
     }
