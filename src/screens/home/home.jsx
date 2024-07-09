@@ -13,12 +13,13 @@ import GameplayRules from './suport/gameplayRules';
 import GameAds from './suport/gameAds';
 import { useTranslation } from 'react-i18next';
 
+import MainNotification from './notification/mainNotication';
+import Gift from './notification/gift';
 function Home({ navigation }) {
   const { userData } = useData();
-  const { data } = userData;
+  const { data} = userData;
   const coin = data.user.coin;
   const { t } = useTranslation();
-
 
   //go to play with bot
   const handlePress = (props) => {
@@ -56,6 +57,17 @@ function Home({ navigation }) {
     setModalVisibleAds(!modalVisibleAds);
   }
 
+  // show notification
+  const [modalVisibleNotification, setModalVisibleNotification] = useState(false);
+  const toggleModalNotification = () => {
+    setModalVisibleNotification(!modalVisibleNotification);
+  };
+
+  // show gift
+  const [modalVisibleGift, setModalVisibleGift] = useState(false);
+  const toggleModalGift = () => {
+    setModalVisibleGift(!modalVisibleGift);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header_home}>
@@ -79,7 +91,7 @@ function Home({ navigation }) {
         }
       </View>
       <View style={styles.main_container}>
-        <UserInfor />
+        <UserInfor  toggleModalNotification={toggleModalNotification} toggleModalGift={toggleModalGift} />
         <View style={styles.main_container_unlimited}>
           <View style={{ width: 40, height: 40, backgroundColor: "#ff861d", alignItems: "center", justifyContent: "center", borderRadius: 50 }}>
             <MaterialCommunityIcons name="crown-outline" size={30} color="white" />
@@ -102,14 +114,20 @@ function Home({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity style={{ width: 100, height: 100, backgroundColor: "pink" }} onPress={removeValue}>
+      {/* <TouchableOpacity style={{ width: 100, height: 100, backgroundColor: "pink" }} onPress={removeValue}>
         <Text>Remove</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       {modalVisible &&
         <GameplayRules modalVisible={modalVisible} toggleModal={toggleModal} />
       }
       {modalVisibleAds &&
         <GameAds modalVisibleAds={modalVisibleAds} toggleModalAds={toggleModalAds} />
+      }
+      {modalVisibleNotification &&
+        <MainNotification modalVisibleNotification={modalVisibleNotification} toggleModalNotification={toggleModalNotification} />
+      }
+      {modalVisibleGift &&
+        <Gift modalVisibleNotification={modalVisibleGift} toggleModalGift={toggleModalGift} />
       }
       <StatusBar style="auto" />
     </View>

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { getNotificationRoute } from "../../apiRouter/API";
 //icon
 import { AntDesign, FontAwesome5, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useData } from "../../HookToGetUserInfo/DataContext";
 import { useTranslation } from "react-i18next";
+import { useData } from "../../HookToGetUserInfo/DataContext";
 
-export default function UserInfor() {
+export default function UserInfor({toggleModalNotification, toggleModalGift}) {
     const { userData } = useData();
     const { data } = userData;
     const { t } = useTranslation();
@@ -22,30 +26,107 @@ export default function UserInfor() {
     useEffect(() => {
         setCurrentPoint(point);
     }, [point]);
-    console.log(point);
-    
+
     const calculateLevel = (ranking) => {
         let level = Math.floor((ranking - 1) / 100) + 1;
         return level;
     }
     useEffect(() => {
         calculateLevel(ranking);
+    },[ranking]);
+
+    //get notification save to async storage
+    const getNotification = async () => {
+        try {
+            const response = await fetch(getNotificationRoute, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                const storedNotifications = await AsyncStorage.getItem("notification");
+                const storedNotificationsData = storedNotifications ? JSON.parse(storedNotifications) : [];
+
+                const notificationData = result.map(item => {
+                    const existingItem = storedNotificationsData.find(n => n._id === item._id);
+                    if (existingItem) {
+                        return existingItem;
+                    } else {
+                        return {
+                            ...item,
+                        };
+                    }
+                });
+                await AsyncStorage.setItem("notification", JSON.stringify(notificationData));
+            } else {
+                console.error('Lỗi khi lấy thông báo:', response.status);
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+        }
     }
-    , [ranking]);
-    
+
+
+    useEffect(() => {
+        getNotification();
+    }, []);
+
+    //test get notification from async storage
+    const [unreadNotifications, setUnreadNotifications] = useState([]);
+    const getNotificationFromAsyncStorage = async () => {
+        const storedNotifications = await AsyncStorage.getItem("notification");
+        const storedNotificationsData = storedNotifications ? JSON.parse(storedNotifications) : [];
+
+        // Tìm các thông báo chưa đọc
+        const unreadNotifications = storedNotificationsData.filter(item => item.status === "unread");
+        setUnreadNotifications(unreadNotifications);
+    };
+    useEffect(() => {
+        getNotificationFromAsyncStorage();
+    }, []);
+    const handlePress = () => {
+        toggleModalNotification();
+        setUnreadNotifications([]);
+
+        // Cập nhật trạng thái của thông báo
+        const updateNotification = async () => {
+            const storedNotifications = await AsyncStorage.getItem("notification");
+            const storedNotificationsData = storedNotifications ? JSON.parse(storedNotifications) : [];
+
+            const updatedNotifications = storedNotificationsData.map(item => {
+                if (item.status === "unread") {
+                    return {
+                        ...item,
+                        status: "read",
+                    };
+                } else {
+                    return item;
+                }
+            });
+            await AsyncStorage.setItem("notification", JSON.stringify(updatedNotifications));
+        };
+        updateNotification();
+    }
+    //
     return (
         <View style={styles.main_container_info}>
             <View style={styles.main_container_info_header}>
-                <View style={styles.cricle}>
+                <TouchableOpacity style={styles.cricle} onPress={handlePress}>
                     <Ionicons name="mail" size={24} color="white" />
-                </View>
+                    {unreadNotifications.length > 0 && (
+                        <View style={{ width: 13, height: 13, borderRadius: 50, backgroundColor: "red", position: "absolute", top: -1, right: -3 }} />
+                    )}
+                </TouchableOpacity>
                 <View style={{ alignItems: "center" }}>
-                    <Image source={{uri: avatar}} style={{ width: 70, height: 70, borderRadius: 50 }} />
+                    <Image source={{ uri: avatar }} style={{ width: 70, height: 70, borderRadius: 50 }} />
                     <Text style={{ color: "#262c32", fontSize: 20, fontWeight: "bold" }}>{username}</Text>
                 </View>
-                <View style={styles.cricle}>
+                <TouchableOpacity style={styles.cricle} onPress={toggleModalGift}>
                     <MaterialCommunityIcons name="gift" size={24} color="white" />
-                </View>
+                </TouchableOpacity>
             </View>
             <View style={{ flexDirection: "row", width: "90%", justifyContent: "space-between", marginTop: 15 }}>
                 <View style={{ alignItems: "center", width: "33%" }}>

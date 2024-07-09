@@ -104,7 +104,7 @@ export default function ListFriend() {
             setAction(index);
         }
     };
-    
+
     //delete friend
     const deleteFriend = async (friendname) => {
         try {
@@ -157,7 +157,7 @@ export default function ListFriend() {
                         <View key={index}>
                             <View key={index} style={{ flexDirection: "row", width: "100%", justifyContent: "space-between", marginTop: 10, alignItems: "center", backgroundColor: "#f3f5f6", paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8 }}>
                                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                                    <Image source={require("../../../../image/avatar.png")} style={{ width: 40, height: 40, borderRadius: 50 }} />
+                                    <Image source={{ uri: friend.avatar }} style={{ width: 40, height: 40, borderRadius: 20 }} />
                                     <Text style={{ fontWeight: "bold", marginLeft: 10, fontSize: 16 }}>{friend.username}</Text>
                                 </View>
                                 {friend.status === 1 && friend.createBy === username && (
@@ -180,7 +180,7 @@ export default function ListFriend() {
                             </View>
                             {action === index && (
                                 <View style={{ flexDirection: "row", width: "100%", marginTop: 8, justifyContent: "flex-end" }}>
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         onPress={() => deleteFriend(friend.username)}
                                         style={{ flexDirection: "row", marginLeft: 8, padding: 5, borderRadius: 10, alignItems: "center", width: "23%", height: 35, justifyContent: "center", paddingHorizontal: 8, backgroundColor: "#fd3730" }}>
                                         <Text style={{ fontSize: 16, color: "#fff" }}>{t('delete')}</Text>
@@ -192,14 +192,16 @@ export default function ListFriend() {
                             )}
                         </View>
                     ))}
-                    <View style={{ flexDirection: "row", width: "100%", height: 30, justifyContent: "flex-end", alignItems: "center" }}>
-                        <TouchableOpacity style={{ flexDirection: "row", width: "30%", height: "100%", justifyContent: "center", alignItems: "center" }} onPress={getListFriend}>
-                            <Text style={{ color: '#0071d8' }}>{t('refresh')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{ flexDirection: "row", width: "30%", height: "100%", justifyContent: "center", alignItems: "center" }} onPress={getListFriend}>
-                            <Text style={{ textDecorationLine: "underline" }}>{t('see more')}</Text>
-                        </TouchableOpacity>
-                    </View>
+                    {listFriendData === 0 && (
+                        <View style={{ flexDirection: "row", width: "100%", height: 30, justifyContent: "flex-end", alignItems: "center" }}>
+                            <TouchableOpacity style={{ flexDirection: "row", width: "30%", height: "100%", justifyContent: "center", alignItems: "center" }} onPress={getListFriend}>
+                                <Text style={{ color: '#0071d8' }}>{t('refresh')}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{ flexDirection: "row", width: "30%", height: "100%", justifyContent: "center", alignItems: "center" }} onPress={getListFriend}>
+                                <Text style={{ textDecorationLine: "underline" }}>{t('see more')}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
                 </View>
             </View>
         </View>

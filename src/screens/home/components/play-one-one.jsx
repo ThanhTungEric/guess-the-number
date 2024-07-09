@@ -10,7 +10,12 @@ const { width } = Dimensions.get("window");
 import { getRoomRoute, guessNumberRoute, leaveRoomRoute } from "../../../apiRouter/API";
 import LoadingDots from '../../../loadingDots/react-native-loading-dots';
 
-const socket = io('http://14.225.207.218:3000');
+const socket = io('http://14.225.207.218:3000', {
+  transports: ['websocket'], // using WebSocket only
+  reconnection: true,
+  reconnectionDelay: 500,
+  reconnectionAttempts: Infinity
+});
 
 const PlayOneToOne = ({ navigation }) => {
   const winner = require('../components/img/win.jpg');
