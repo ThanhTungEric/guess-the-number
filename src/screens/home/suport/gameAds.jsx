@@ -13,7 +13,8 @@ const GameAds = ({ modalVisibleAds, toggleModalAds }) => {
             <View style={styles.modalContainer}>
                 <Image source={ImageRules} style={{ width: "80%", height: "60%", borderRadius: 10 }} resizeMode="contain" />
                 <TouchableOpacity style={styles.closeButton} onPress={toggleModalAds}>
-                    <Text style={styles.closeButtonText}>Đã hiểu  !!!</Text>
+                    <Text style={styles.closeButtonText}>Đã hiểu!!</Text>
+                    
                 </TouchableOpacity>
             </View>
         </Modal>
