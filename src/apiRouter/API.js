@@ -26,3 +26,8 @@ export const declineFriendRoute = `${host}/friend/decline`;
 export const getFriendRoute = `${host}/friend/get`;
 export const deleteFriendRoute = `${host}/friend/delete`;
 export const searchUserRoute = `${host}/user/search`;
+
+//notification
+export const getNotificationRoute = `${host}/notification`;
+export const deleteNotificationRoute = `${host}/notification`;
+export const getOneNotificationRoute = `${host}/notification`;

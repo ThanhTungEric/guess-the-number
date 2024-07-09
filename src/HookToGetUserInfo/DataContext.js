@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
 const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
@@ -7,8 +8,9 @@ export const DataProvider = ({ children }) => {
     const updateUserData = (newData) => {
         setUserData(newData);
     };
+
     return (
-        <DataContext.Provider value={{ userData, updateUserData }}>
+        <DataContext.Provider value={{ userData, updateUserData}}>
             {children}
         </DataContext.Provider>
     );
