@@ -13,6 +13,7 @@ export default function UserInfor({toggleModalNotification, toggleModalGift}) {
     const { userData } = useData();
     const { data } = userData;
     const { t } = useTranslation();
+
     const username = data.user.username;
     const point = data.user.point;
     const numberWin = data.user.numberWin;

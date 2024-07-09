@@ -34,28 +34,10 @@ const Login = () => {
             const data = await response.json();
             console.log(data);
             alert('Login successful');
-            updateUserData({ data: data }); // Cập nhật dữ liệu người dùng
+            await AsyncStorage.setItem('@user_data', JSON.stringify(data));
+            updateUserData({ data: data });
             navigation.navigate('BottomTabNavigator', { data: data });
 
-        } catch (error) {
-            console.error('There was an error with the login request:', error);
-            setErrorMessage('Login failed. Please try again.');
-        }
-    };
-    const getUserByName = async () => {
-        try {
-            const response = await fetch(`${getUserByNameRoute}?username=${name}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            console.log(data);
         } catch (error) {
             console.error('There was an error with the login request:', error);
             setErrorMessage('Login failed. Please try again.');
@@ -82,7 +64,12 @@ const Login = () => {
     };
 
     const handleLogin = () => {
-        login();
+        if (!userDataLocal) {
+            login();
+        } else {
+            getUserByName();
+            navigation.navigate('BottomTabNavigator', { data: userDataLocal });
+        }
     };
     const toggleModalVisibility = () => {
         setIsModalVisible(!isModalVisible);
