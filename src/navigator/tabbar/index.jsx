@@ -7,6 +7,7 @@ import ProfileSettings from "../../screens/settings/settings";
 import { getPathDown } from "./curve";
 import { Svg, Path } from "react-native-svg";
 import { scale } from "react-native-size-scaling";
+import { useTranslation } from "react-i18next";
 
 // Icon
 import { Octicons } from '@expo/vector-icons';
@@ -17,6 +18,7 @@ export const BottomTabNavigator = () => {
   const route = useRoute();
   const [maxWidth, setMaxWidth] = useState(Dimensions.get("window").width);
   const returnpathDown = getPathDown(maxWidth, 60, 50);
+  const { t } = useTranslation();
 
   // Lấy dữ liệu từ route.params.data
   const {data} = route.params;
@@ -55,7 +57,7 @@ export const BottomTabNavigator = () => {
             />
           ),
           tabBarLabel: () => (
-            <Text className="text-black text-xs">Profile</Text>
+            <Text className="text-black text-xs">{t('profile')}</Text>
           ),
         }}
       />
@@ -115,7 +117,7 @@ export const BottomTabNavigator = () => {
             />
           ),
           tabBarLabel: () => (
-            <Text className="text-black text-xs">Settings</Text>
+            <Text className="text-black text-xs">{t('setting')}</Text>
           ),
         }}
       />

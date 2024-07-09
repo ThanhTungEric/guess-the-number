@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 //icon
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, FontAwesome5, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useData } from "../../HookToGetUserInfo/DataContext";
+import { useTranslation } from "react-i18next";
 
 export default function UserInfor() {
     const { userData } = useData();
     const { data } = userData;
-    
+    const { t } = useTranslation();
     const username = data.user.username;
     const point = data.user.point;
     const numberWin = data.user.numberWin;
     const numberLose = data.user.numberLose;
+    const avatar = data.user.avatar;
     const ranking = numberWin - numberLose;
+    const level = data.user.level;
+    const coin = data.user.coin;
+    console.log(data.user, "data user");
     const [currentPoint, setCurrentPoint] = useState(point);
     useEffect(() => {
         setCurrentPoint(point);
@@ -27,8 +28,6 @@ export default function UserInfor() {
         let level = Math.floor((ranking - 1) / 100) + 1;
         return level;
     }
-    console.log(calculateLevel(ranking));
-
     useEffect(() => {
         calculateLevel(ranking);
     }
@@ -41,7 +40,7 @@ export default function UserInfor() {
                     <Ionicons name="mail" size={24} color="white" />
                 </View>
                 <View style={{ alignItems: "center" }}>
-                    <Image source={require('../../../image/avatar.png')} style={{ width: 70, height: 70, borderRadius: 50 }} />
+                    <Image source={{uri: avatar}} style={{ width: 70, height: 70, borderRadius: 50 }} />
                     <Text style={{ color: "#262c32", fontSize: 20, fontWeight: "bold" }}>{username}</Text>
                 </View>
                 <View style={styles.cricle}>
@@ -51,17 +50,17 @@ export default function UserInfor() {
             <View style={{ flexDirection: "row", width: "90%", justifyContent: "space-between", marginTop: 15 }}>
                 <View style={{ alignItems: "center", width: "33%" }}>
                     <FontAwesome6 name="ranking-star" size={24} color="white" />
-                    <Text style={{ color: "#fff", fontSize: 16 }}>Ranking</Text>
+                    <Text style={{ color: "#fff", fontSize: 16 }}>{t('rank')}</Text>
                     <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> {ranking} </Text>
                 </View>
                 <View style={{ alignItems: "center", width: "33%" }}>
                     <FontAwesome5 name="medal" size={24} color="white" />
-                    <Text style={{ color: "#fff", fontSize: 15 }}>Total Points</Text>
-                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> {point} </Text>
+                    <Text style={{ color: "#fff", fontSize: 15 }}>{t('point')}</Text>
+                    <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> {point}</Text>
                 </View>
                 <View style={{ alignItems: "center", width: "33%" }}>
                     <AntDesign name="star" size={24} color="#ffd433" />
-                    <Text style={{ color: "#fff", fontSize: 15 }}>Level</Text>
+                    <Text style={{ color: "#fff", fontSize: 15 }}>{t('level')}</Text>
                     <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}> {calculateLevel(ranking)} </Text>
                 </View>
             </View>

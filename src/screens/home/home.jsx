@@ -1,14 +1,25 @@
 import { StatusBar } from 'expo-status-bar';
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 // import component
 import UserInfor from '../component/user-infor';
 //icon
 import { Entypo, Feather, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRoute } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useData } from "../../HookToGetUserInfo/DataContext";
+// import component
+import Instructions from './suport/instructions';
+import GameplayRules from './suport/gameplayRules';
+import GameAds from './suport/gameAds';
+import { useTranslation } from 'react-i18next';
 
 function Home({ navigation }) {
+  const { userData } = useData();
+  const { data } = userData;
+  const coin = data.user.coin;
+  const { t } = useTranslation();
+
+
   //go to play with bot
   const handlePress = (props) => {
     navigation.navigate('PlayWithBot')
@@ -17,16 +28,41 @@ function Home({ navigation }) {
   const handlePressPlayOneToOne = (props) => {
     navigation.navigate('Room')
   }
-  //get user infor
-  const route = useRoute();
-  const { data } = route.params;
+  // test delete @user_data from asyn
+  const removeValue = async () => {
+    try {
+      await AsyncStorage.removeItem('@user_data')
+    } catch (e) {
+      // remove error
+    }
+    console.log('Done.')
+  }
+
+  // showw contruction
+  const [showInstructions, setShowInstructions] = useState(false);
+  const handleShowInstructions = () => {
+    setShowInstructions(!showInstructions);
+  }
+
+  // show game rules
+  const [modalVisible, setModalVisible] = useState(false);
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+  //game ads
+  const [modalVisibleAds, setModalVisibleAds] = useState(false);
+  const toggleModalAds = () => {
+    setModalVisibleAds(!modalVisibleAds);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header_home}>
         <View style={styles.header_home_left}>
           <View style={styles.header_home_item}>
             <MaterialCommunityIcons name="crown-outline" size={24} color="#ff861d" />
-            <Text style={styles.header_home_item_text}> 852 </Text>
+            <Text style={styles.header_home_item_text}> {coin} </Text>
             <Entypo name="circle-with-plus" size={24} color="#01d48b" />
           </View>
           <View style={styles.header_home_item}>
@@ -35,9 +71,12 @@ function Home({ navigation }) {
             <Entypo name="circle-with-plus" size={24} color="#01d48b" />
           </View>
         </View>
-        <View style={styles.header_home_right}>
+        <TouchableOpacity style={styles.header_home_right} onPress={handleShowInstructions}>
           <Entypo name="menu" size={30} color="#5d7081" />
-        </View>
+        </TouchableOpacity>
+        {showInstructions &&
+          <Instructions toggleModal={toggleModal} handleShowInstructions={handleShowInstructions} />
+        }
       </View>
       <View style={styles.main_container}>
         <UserInfor />
@@ -59,10 +98,19 @@ function Home({ navigation }) {
             onPress={handlePress}
             style={{ width: "45%", aspectRatio: 1, backgroundColor: '#04c977', borderRadius: 15, justifyContent: "center", alignItems: "center" }}>
             <MaterialCommunityIcons name="robot-confused" size={50} color="#04583e" />
-            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginTop: 8 }}>Play Vs Bot</Text>
+            <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginTop: 8 }}>{t('play vs bot')}</Text>
           </TouchableOpacity>
         </View>
       </View>
+      <TouchableOpacity style={{ width: 100, height: 100, backgroundColor: "pink" }} onPress={removeValue}>
+        <Text>Remove</Text>
+      </TouchableOpacity>
+      {modalVisible &&
+        <GameplayRules modalVisible={modalVisible} toggleModal={toggleModal} />
+      }
+      {modalVisibleAds &&
+        <GameAds modalVisibleAds={modalVisibleAds} toggleModalAds={toggleModalAds} />
+      }
       <StatusBar style="auto" />
     </View>
   );
@@ -85,7 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   header_home_right: {
-    margin: 10,
+    marginRight: 20,
   },
   header_home_item: {
     flexDirection: "row",

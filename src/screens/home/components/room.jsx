@@ -4,9 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from "react";
 import { Alert, Button, Dimensions, FlatList, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import io from 'socket.io-client';
-import { createRoomRoute, deleteAllRoomRoute, getAllRoomRoute, joinRoomRoute } from "../../../apiRouter/API";
+import { createRoomRoute, deleteAllRoomRoute, getAllRoomRoute, joinRoomRoute,host } from "../../../apiRouter/API";
 import { useData } from "../../../HookToGetUserInfo/DataContext";
 const { width } = Dimensions.get("window");
+import { useTranslation } from 'react-i18next';
 
 
 const Room = ({ navigation }) => {
@@ -22,9 +23,10 @@ const Room = ({ navigation }) => {
   const id = data.user._id;
   const [dataUser, setDataUser] = useState({});
   const socket = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
-    socket.current = io('http://192.168.1.8:3000');
+    socket.current = io(`${host}`);
     return () => {
       socket.current.disconnect();
     }
@@ -133,41 +135,7 @@ const Room = ({ navigation }) => {
       }
     }
   };
-  // const joinRoom = async () => {
-  //   if (!roomNumberList.includes(roomNumber)) {
-  //     Alert.alert("Phòng không tồn tại. Vui lòng kiểm tra lại số phòng!");
-  //     return;
-  //   }
-  //   try {
-  //     const response = await axios.post(joinRoomRoute, {
-  //       roomNumber,
-  //       userId: id,
-  //       playerNumber: secretNumber,
-  //     });
-  //     const data = response.data;
-  //     if (response.status === 200) {
-  //       Alert.alert('Room joined successfully');
-  //       socket.current.on('join-room', (data) => {
-  //         if (data.room) {
-  //           console.log('join-room', data.room);
-  //         }
-  //       });
-
-  //       socket.current.emit('join-room', { roomNumber, secretNumber });
-  //       navigation.navigate('PlayOneToOne', { roomId: roomNumber, secretNumber });
-  //     } else {
-  //       Alert.alert(data.message || 'Failed to join room. Please try again later.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error joining room:', error);
-  //     if (error.response) {
-  //       Alert.alert(`Error ${error.response.status}: ${error.response.data.message}`);
-  //     } else {
-  //       Alert.alert('Failed to join room. Please try again later.');
-  //     }
-  //   }
-  // };
-  const joinRoom = async () => {
+    const joinRoom = async () => {
     if (!roomNumberList.includes(roomNumber)) {
       Alert.alert("Phòng không tồn tại. Vui lòng kiểm tra lại số phòng!");
       return;
@@ -216,13 +184,13 @@ const Room = ({ navigation }) => {
   }, []);
   const renderItem = ({ item }) => (
     <View style={styles.roomCard}>
-      <Text style={styles.roomNumber}>Phòng: {item.roomNumber}</Text>
-      <Text style={styles.roomCardText}>Số người chơi: {item.players.length}</Text>
-      <Text style={styles.roomCardText}>Trạng thái: {item.gameStatus}</Text>
+      <Text style={styles.roomNumber}>{t('number room')}: {item.roomNumber}</Text>
+      <Text style={styles.roomCardText}>{t('number of players')}: {item.players.length}</Text>
+      <Text style={styles.roomCardText}>{t('room status')}: {item.gameStatus}</Text>
       {
         item.gameStatus === 'waiting' && (
           <TouchableOpacity style={styles.joinButton} onPress={() => toggleJoinRoomVisibility(item.roomNumber)}>
-            <Text style={styles.joinButtonText}>Join</Text>
+            <Text style={styles.joinButtonText}>{t('join')}</Text>
           </TouchableOpacity>
         )
       }
@@ -276,7 +244,7 @@ const Room = ({ navigation }) => {
           <AntDesign name="pluscircle" size={30} color="#ff4301" />
         </TouchableOpacity>
       </View>
-      <Text style={styles.roomListHeader}>Danh sách phòng chơi</Text>
+      <Text style={styles.roomListHeader}>{t('room list')}</Text>
       <FlatList
         style={styles.roomListContainer}
         data={roomList}
@@ -296,7 +264,7 @@ const Room = ({ navigation }) => {
       >
         <View style={styles.viewWrapper}>
           <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>Create room</Text>
+            <Text style={styles.modalTitle}>{t('create room')}</Text>
             <TextInput
               placeholder="Enter your secret number"
               style={styles.inputCreateRoom}
@@ -322,7 +290,7 @@ const Room = ({ navigation }) => {
       >
         <View style={styles.viewWrapper}>
           <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>Join room</Text>
+            <Text style={styles.modalTitle}>{t('join')}</Text>
             <TextInput
               placeholder="Enter room number"
               style={styles.inputCreateRoom}
@@ -356,7 +324,7 @@ const Room = ({ navigation }) => {
   <View style={styles.viewWrapper}>
     <View style={styles.modalView}>
       <Text style={styles.modalTitle}>Join room</Text>
-      <Text style={styles.roomNumber}>Room Number: {roomNumber}</Text>
+      <Text style={styles.roomNumber}>{t('room number')}: {roomNumber}</Text>
       <TextInput
         placeholder="Enter your secret number"
         style={styles.inputCreateRoom}

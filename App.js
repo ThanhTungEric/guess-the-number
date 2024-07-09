@@ -8,6 +8,8 @@ import PlayOneToOne from "./src/screens/home/components/play-one-one";
 import Room from "./src/screens/home/components/room";
 import Login from "./src/screens/login/login";
 import { DataProvider } from "./src/HookToGetUserInfo/DataContext";
+import "./src/translate/i18n";
+
 
 const Stack = createNativeStackNavigator();
 

@@ -8,8 +8,9 @@ import { useData } from '../../../HookToGetUserInfo/DataContext';
 const { width } = Dimensions.get("window");
 
 import { getRoomRoute, guessNumberRoute, leaveRoomRoute } from "../../../apiRouter/API";
+import LoadingDots from '../../../loadingDots/react-native-loading-dots';
 
-const socket = io('http://192.168.1.139:3000');
+const socket = io('http://14.225.207.218:3000');
 
 const PlayOneToOne = ({ navigation }) => {
   const winner = require('../components/img/win.jpg');
@@ -225,11 +226,15 @@ const PlayOneToOne = ({ navigation }) => {
   const getTurn = () => {
     if (roomInfo?.currentTurn === id) {
       return (
-        <Text style={{ fontSize: 13, color: "#000", fontWeight: "600", color: "#4da8cb" }}>Lượt của bạn</Text>
+        <TouchableOpacity style={styles.sendButton} onPress={handleGuest}>
+          <FontAwesome name="send" size={24} color="#fff" />
+        </TouchableOpacity>
       );
     }
     return (
-      <Text style={{ fontSize: 13, color: "#000", fontWeight: "600" }}>Lượt của đối thủ</Text>
+      <TouchableOpacity style={styles.sendButtonHide}>
+        <FontAwesome name="send" size={24} color="#fff" />
+      </TouchableOpacity>
     );
   };
 
@@ -296,104 +301,109 @@ const PlayOneToOne = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#0082B4ed" barStyle="light-content" />
-      {hiddenMember() && (
-        <View style={{ backgroundColor: "#FF7E39", padding: 10, alignItems: "center" }}>
-          <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600" }}>
-            Chờ đủ người chơi
-          </Text>
-        </View>
-      )}
+
       <View style={styles.header}>
         <TouchableHighlight style={styles.circleBack} onPress={handleBackHome}>
           <Ionicons name="chevron-back" size={30} color="white" />
         </TouchableHighlight>
-        <View style={{ alignItems: "center" }}>
-          <Text>Số phòng</Text>
-          <Text style={{ fontSize: 20, color: "#fff", fontWeight: "600" }}>{roomInfo?.roomNumber}</Text>
+        <View style={{ alignItems: "center", flexDirection: "row" }}>
+          <Ionicons name="home" size={24} color="white" />
+          <Text style={{ marginLeft: 8, fontSize: 20, color: "#fff", fontWeight: "600" }}>{roomInfo?.roomNumber}</Text>
         </View>
-
         <View style={styles.bound}>
           <View style={styles.userNumber}>
-            <View style={styles.iconUserNumber}>
-              <Octicons name="number" size={20} color="#ff7e39" />
-            </View>
-            <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600", marginLeft: 5 }}>
+            <Text style={{ fontSize: 18, color: "#fff", fontWeight: "600" }}>
               {getNumberByUser()}
             </Text>
           </View>
-          <View style={{ marginLeft: 10, marginTop: 10 }}>
+          {/* <View style={{ marginLeft: 10, marginTop: 10 }}>
             {getTurn()}
-          </View>
+          </View> */}
         </View>
       </View>
-      <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
-        {[...Array(4)].map((_, index) => (
-          <View key={index} style={styles.inputNumber}>
-            <Text style={styles.inputNumberText}>
-              {selectedNumbers[index]}
-            </Text>
-          </View>
-        ))}
-        <TouchableOpacity style={styles.sendButton} onPress={handleGuest}>
-          <FontAwesome name="send" size={24} color="#fff" />
-        </TouchableOpacity>
-      </SafeAreaView>
+      {hiddenMember() && (
+        <View style={{ padding: 10, alignItems: "center", flex: 1, justifyContent: 'center' }}>
+          <Text style={{ fontSize: 18, color: "#111", fontWeight: "600", marginBottom: 30 }}>
+            Chờ đủ người chơi
+          </Text>
+          <LoadingDots />
+        </View>
+      )}
+      {hiddenMember() !== true && (
+        <View style={styles.guessTable}>
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.scrollView}
+            onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+          >
+            <View style={styles.messageContainer}>
+              {sortedGuesses.map((guess, index) => (
+                <View
+                  key={index}
+                  style={[
+                    guess.user === id ? styles.ownerMessage : styles.guestMessage,
+                    styles.message,
+                    guess.user === id ? styles.ownerMessageUnique : styles.guestMessageUnique, // Special shape style
+                  ]}
+                >
+                  <Text style={guess.user === id ? styles.ownerText : styles.guestText}>
+                    {guess.user === id ? 'Bạn' : 'Đối thủ'} đã đoán số: {guess.number}.
+                  </Text>
+                  {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
+                    <Text style={styles.matchingDigitsText}> Đúng: {matchingDigitsForGuesses[guess._id][0]} số</Text>
+                  )}
+                  {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
+                    checkPositionNumberCorrect(guess._id)
+                  )}
+                </View>
+              ))}
+              {roomInfo && roomInfo.gameStatus === 'finished' && (
+                <View style={[
+                  styles.endGameMessage,
+                  roomInfo.winner === id ? styles.winnerMessage : styles.loserMessage
+                ]}>
+                  <Text style={styles.endGameText}>End Game!</Text>
+                  {
+                    roomInfo.winner === id ? (
+                      <Text style={styles.endGameText}>Chúc mừng! Bạn đã chiến thắng!</Text>
+                    ) : (
+                      <Text style={styles.endGameText}>Rất tiếc! Bạn đã thua!</Text>
+                    )
+                  }
+                </View>
+              )}
 
-      <SafeAreaView style={styles.numberPad}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((item) => (
-          <TouchableOpacity key={item} style={styles.numberButton} onPress={() => handleNumberPress(item)}>
-            <Text style={styles.numberButtonText}>{item}</Text>
-          </TouchableOpacity>
-        ))}
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDeletePress}>
-          <FontAwesome6 name="delete-left" size={30} color="red" />
-        </TouchableOpacity>
-      </SafeAreaView>
-
-      <View style={styles.guessTable}>
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.scrollView}
-          onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-        >
-          <View style={styles.messageContainer}>
-            {sortedGuesses.map((guess, index) => (
-              <View
-                key={index}
-                style={[
-                  guess.user === id ? styles.ownerMessage : styles.guestMessage,
-                  styles.message,
-                  guess.user === id ? styles.ownerMessageUnique : styles.guestMessageUnique, // Special shape style
-                ]}
-              >
-                <Text style={guess.user === id ? styles.ownerText : styles.guestText}>
-                  {guess.user === id ? 'Bạn' : 'Đối thủ'} đã đoán số: {guess.number}.
+            </View>
+          </ScrollView>
+        </View>
+      )}
+      {hiddenMember() !== true && (
+        <>
+          <SafeAreaView style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center" }}>
+            {[...Array(4)].map((_, index) => (
+              <View key={index} style={styles.inputNumber}>
+                <Text style={styles.inputNumberText}>
+                  {selectedNumbers[index]}
                 </Text>
-                {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
-                  <Text style={styles.matchingDigitsText}> Đúng: {matchingDigitsForGuesses[guess._id][0]} số</Text>
-                )}
-                {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
-                  checkPositionNumberCorrect(guess._id)
-                )}
               </View>
             ))}
-            {roomInfo && roomInfo.gameStatus === 'finished' && (
-              <View style={styles.endGameMessage}>
-                <Text style={styles.endGameText}>End Game!</Text>
-                {
-                  roomInfo.winner === id ? (
-                    <Text style={styles.endGameText}>Chúc mừng! Bạn đã chiến thắng!</Text>
-                  ) : (
-                    <Text style={styles.endGameText}>Rất tiếc! Bạn đã thua!</Text>
-                  )
-                }
-              </View>
-            )}
-          </View>
-        </ScrollView>
-      </View>
+            {getTurn()}
+          </SafeAreaView>
+
+          <SafeAreaView style={styles.numberPad}>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((item) => (
+              <TouchableOpacity key={item} style={styles.numberButton} onPress={() => handleNumberPress(item)}>
+                <Text style={styles.numberButtonText}>{item}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.deleteButton} onPress={handleDeletePress}>
+              <FontAwesome6 name="delete-left" size={30} color="red" />
+            </TouchableOpacity>
+          </SafeAreaView>
+        </>
+      )}
 
       <Modal
         animationType="slide"
@@ -422,6 +432,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    alignItems: 'center',
   },
   header: {
     backgroundColor: '#0082B4',
@@ -429,11 +440,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: "98%",
+    borderRadius: 20,
   },
   circleBack: {
-    padding: 10,
     borderRadius: 50,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    width: 35,
+    height: 35,
+    justifyContent: "center",
+    alignItems: "center",
   },
   userNumber: {
     flexDirection: 'row',
@@ -466,7 +482,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   sendButton: {
-    backgroundColor: '#0B9D6A',
+    backgroundColor: '#0071d8',
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 5,
+    borderRadius: 10,
+  },
+  sendButtonHide: {
+    backgroundColor: 'red',
     width: 60,
     height: 60,
     justifyContent: 'center',
@@ -500,11 +525,12 @@ const styles = StyleSheet.create({
   },
   guessTable: {
     flex: 1,
+    width: '100%',
     backgroundColor: '#F5F5F5',
-    marginTop: 20,
+    marginTop: 5,
     borderRadius: 20,
     paddingHorizontal: 10,
-    paddingVertical: 15,
+    paddingVertical: 2,
   },
   scrollView: {
     width: '100%',
@@ -579,28 +605,39 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   closeButton: {
-    padding: 10,
     backgroundColor: '#61dafb',
     borderRadius: 5,
+    width: 80,
+    height: 35,
+    justifyContent: "center",
+    alignItems: "center",
   },
   closeButtonText: {
-    color: '#282c34',
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
   },
   endGameMessage: {
     padding: 15,
     marginVertical: 5,
-    backgroundColor: '#ffcccb',
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: '#ff0000',
     borderWidth: 5,
+  },
+  winnerMessage: {
+    backgroundColor: '#d4edda',
+    borderColor: '#c3e6cb',
+    color: '#155724',
+  },
+  loserMessage: {
+    backgroundColor: '#f8d7da',
+    borderColor: '#f5c6cb',
+    color: '#721c24',
   },
   endGameText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#ff0000',
   },
 });
 
