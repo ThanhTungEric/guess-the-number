@@ -21,11 +21,6 @@ const GameplayRules = ({ modalVisible, toggleModal }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     modalContainer: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -36,7 +31,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         paddingVertical: 8,
         paddingHorizontal: 8,
-        borderRadius: 8,
         position: 'absolute',
         top: 550,
         width: "30%",

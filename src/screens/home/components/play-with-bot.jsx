@@ -65,12 +65,10 @@ function PlayWithBot({ navigation }) {
   const handleGuess = async () => {
     //if turn is false return 
     if (listNumber.length === 52) {
-      console.log("You lose");
       return;
     }
     const number = selectedNumbers.join('');
     if (number.length < 4) {
-      console.log("Please enter 4 numbers");
       return;
     }
     setListNumber([...listNumber, number]);
@@ -82,26 +80,12 @@ function PlayWithBot({ navigation }) {
     }
     setNumberIsCorrect([...numberIsCorrect, count]);
     if (number === botNumber) {
-      console.log("You win");
       setAllNumber(prevAllNumber => [
         ...prevAllNumber,
         { value: number, type: 'p', result: count },
         { value: `Bạn đã chiến thắng`, type: 'b', result: count }
       ]);
       return;
-    } else if (count === 4) {
-      console.log("4 number is correct");
-    } else if (count === 1) {
-      console.log("1 number is correct");
-    }
-    else if (count === 2) {
-      console.log("2 number is correct");
-    }
-    else if (count === 3) {
-      console.log("3 number is correct");
-    }
-    else {
-      console.log("0 number is correct");
     }
     setAllNumber(prevAllNumber => [
       ...prevAllNumber,
@@ -111,10 +95,6 @@ function PlayWithBot({ navigation }) {
     aiBotGuessNumber();
     setSelectedNumbers([]);
   };
-
-  useEffect(() => {
-    console.log("all number", allNumber);
-  }, [allNumber]);
 
   // AI bot guess number
   const [isCorect0, setIsCorect0] = useState([]);
@@ -139,7 +119,6 @@ function PlayWithBot({ navigation }) {
     }
     setBotGuessNumber([...botGuessNumber, number]);
 
-    console.log("bot guess number", number);
     let count = 0;
     for (let i = 0; i < 4; i++) {
       if (inputValueNumber.includes(number[i])) {
