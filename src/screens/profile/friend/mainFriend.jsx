@@ -5,7 +5,6 @@ import ListFriend from "./listFriend";
 export default function MainFriend() {
     return (
         <View style={{ width: '100%'}}>
-
             <ListFriend />
         </View>
     );

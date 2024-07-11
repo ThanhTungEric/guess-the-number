@@ -1,4 +1,4 @@
-import { FontAwesome, FontAwesome6, Ionicons, Octicons } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
@@ -6,6 +6,7 @@ import { Alert, Dimensions, Image, Modal, SafeAreaView, ScrollView, StatusBar, S
 import io from 'socket.io-client';
 import { useData } from '../../../HookToGetUserInfo/DataContext';
 const { width } = Dimensions.get("window");
+import { useTranslation } from 'react-i18next';
 
 import { getRoomRoute, guessNumberRoute, leaveRoomRoute } from "../../../apiRouter/API";
 import LoadingDots from '../../../loadingDots/react-native-loading-dots';
@@ -35,6 +36,7 @@ const PlayOneToOne = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [winnerInfo, setWinnerInfo] = useState(null);
   const endRef = useRef(null);
+  const { t } = useTranslation();
 
   const [alertShown, setAlertShown] = useState(false);
 
@@ -197,7 +199,7 @@ const PlayOneToOne = ({ navigation }) => {
     if (correctPositions === 4) {
       return (
         <Text style={styles.positionText}>
-          Bạn đã đoán đúng số của đối thủ!
+          {t('guess correctly')}
         </Text>
       );
     }
@@ -259,7 +261,7 @@ const PlayOneToOne = ({ navigation }) => {
       return;
     }
     if (number === opponentNumber) {
-      Alert.alert("Bạn đã đoán đúng số của đối thủ!");
+      Alert.alert(t('guess correctly'));
       return;
     }
     try {
@@ -354,10 +356,10 @@ const PlayOneToOne = ({ navigation }) => {
                   ]}
                 >
                   <Text style={guess.user === id ? styles.ownerText : styles.guestText}>
-                    {guess.user === id ? 'Bạn' : 'Đối thủ'} đã đoán số: {guess.number}.
+                    {guess.user === id ? t('you guess') : t('opponent guess')} {guess.number}.
                   </Text>
                   {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
-                    <Text style={styles.matchingDigitsText}> Đúng: {matchingDigitsForGuesses[guess._id][0]} số</Text>
+                    <Text style={styles.matchingDigitsText}> {t('correct')} {matchingDigitsForGuesses[guess._id][0]} số</Text>
                   )}
                   {guess.user === id && matchingDigitsForGuesses[guess._id] !== undefined && (
                     checkPositionNumberCorrect(guess._id)
@@ -372,9 +374,9 @@ const PlayOneToOne = ({ navigation }) => {
                   <Text style={styles.endGameText}>End Game!</Text>
                   {
                     roomInfo.winner === id ? (
-                      <Text style={styles.endGameText}>Chúc mừng! Bạn đã chiến thắng!</Text>
+                      <Text style={styles.endGameText}>{t('congratulation')}</Text>
                     ) : (
-                      <Text style={styles.endGameText}>Rất tiếc! Bạn đã thua!</Text>
+                      <Text style={styles.endGameText}>{t('condolatory')}</Text>
                     )
                   }
                 </View>
@@ -419,9 +421,9 @@ const PlayOneToOne = ({ navigation }) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Image source={winner} style={{ width: 200, height: 200, resizeMode: 'contain' }} />
-            <Text style={styles.modalText}>Chúc mừng! {winnerInfo?.winnerId === id ? "Đối thủ đã" : "Bạn đã"} đoán đúng số!</Text>
+            <Text style={styles.modalText}>{t('congratulation')}!{winnerInfo?.winnerId === id ? null:null}</Text>
             <TouchableOpacity onPress={toggleModalVisibility} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Đóng</Text>
+              <Text style={styles.closeButtonText}>{t('close')}</Text>
             </TouchableOpacity>
           </View>
         </View>

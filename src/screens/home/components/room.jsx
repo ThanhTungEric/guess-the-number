@@ -9,7 +9,6 @@ import { useData } from "../../../HookToGetUserInfo/DataContext";
 const { width } = Dimensions.get("window");
 import { useTranslation } from 'react-i18next';
 
-
 const Room = ({ navigation }) => {
   const [roomNumber, setRoomNumber] = useState('');
   const [secretNumber, setSecretNumber] = useState('');
@@ -184,7 +183,7 @@ const Room = ({ navigation }) => {
   }, []);
   const renderItem = ({ item }) => (
     <View style={styles.roomCard}>
-      <Text style={styles.roomNumber}>{t('number room')}: {item.roomNumber}</Text>
+      <Text style={styles.roomNumber}>{t('number room')}: {item.roomNumber} </Text>
       <Text style={styles.roomCardText}>{t('number of players')}: {item.players.length}</Text>
       <Text style={styles.roomCardText}>{t('room status')}: {item.gameStatus}</Text>
       {
