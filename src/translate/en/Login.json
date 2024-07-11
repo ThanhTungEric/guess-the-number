@@ -20,7 +20,23 @@
     "room status": "Room status",
     "join": "Join",
     "profile": "Profile",
-    "setting": "Setting"
+    "guess correctly": "That's correct!",
+    "you guess": "You guessed:",
+    "opponent guess": "Opponent guessed:",
+    "correct": "Correct:",
+    "congratulation": "Congratulation! You win!",
+    "condolatory": "Condolatory! You lose!",
+    "play": "Play", 
+    "enter your name": "Enter your name", 
+    "explore rank": "Explore Rank",
+    "enter your password": "Enter your password",
+    
+    "setting": "Setting",
+    "delete cache": "Delete Cache",
+    "language": "Language",
+    "about us": "About us",
+    "log out": "Log out"
+
     
 
 

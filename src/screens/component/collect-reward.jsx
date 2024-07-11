@@ -1,14 +1,12 @@
-import { Feather } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Calendar } from 'react-native-calendars';
 import { attendanceRoute, getUserByIdRoute, missionsUserRoute } from '../../apiRouter/API';
 import { useData } from '../../HookToGetUserInfo/DataContext';
-import { useTranslation } from 'react-i18next';
-import { use } from "i18next";
 
 
 const rewardData = [
@@ -32,23 +30,18 @@ const getRandomDailyMissions = async () => {
         const j = Math.floor(random(seed + i) * (i + 1));
         [otherMissions[i], otherMissions[j]] = [otherMissions[j], otherMissions[i]];
     }
-    const numberOfMissions = 2;
+    const numberOfMissions = 3;
     dailyMissions.push(...otherMissions.slice(0, numberOfMissions));
-
     const lastCheckedDate = await AsyncStorage.getItem('lastCheckedDate');
     const attendanceStatus = await AsyncStorage.getItem('attendanceCompleted');
-    
     const formattedToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
     if (lastCheckedDate !== formattedToday) {
         await AsyncStorage.setItem('lastCheckedDate', formattedToday);
         await AsyncStorage.setItem('attendanceCompleted', 'false');
     }
-
     if (attendanceStatus === 'true') {
         return dailyMissions.filter(mission => mission.missionName !== "Điểm danh");
     }
-
     return dailyMissions;
 }
 
@@ -66,8 +59,6 @@ export default function CollectReward() {
     const [completedMissions, setCompletedMissions] = useState([]);
     const [completedMissionsIncluded, setCompletedMissionsIncluded] = useState(false);
     const { t } = useTranslation('login')
-    const { i18n } = useTranslation()
-    
 
     const now = new Date(); 
     const nowFormat = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -85,7 +76,7 @@ export default function CollectReward() {
     const handleAttendance = async (dateString) => {
         try {
             await axios.put(`${attendanceRoute}/${id}`);
-            await AsyncStorage.setItem('attendanceCompleted', 'false');
+            await AsyncStorage.setItem('attendanceCompleted', 'true');  // Mark attendance as completed
             setDailyMissions((prevMissions) => prevMissions.filter(mission => mission.missionName !== "Điểm danh"));
 
             setMarkedDates(prev => ({
@@ -187,9 +178,6 @@ export default function CollectReward() {
         parsedDates.push(day.dateString);
         await AsyncStorage.setItem('checkedInDates', JSON.stringify(parsedDates));
     };
-    useEffect(() => {
-        handleDayPress({ dateString: nowFormat });
-    }, []);
 
     const missionPress = (missionName) => {
         if (missionName === "Điểm danh") {
@@ -223,15 +211,17 @@ export default function CollectReward() {
                 {dailyMissions.map((item, index) => {
                     if (!completedMissionsIncluded || !completedMissions.some(mission => mission.missionName === item.missionName)) {
                         return (
-                            <TouchableOpacity key={index} onPress={() => missionPress(item.missionName)}>
-                                <View style={styles.missionContainer}>
+                            <TouchableOpacity key={index} onPress={() => missionPress(item.missionName)} style={styles.userItem}>
+                                <View style={styles.userInfo}>
                                     <Text style={styles.missionText}>{item.missionName}</Text>
                                     <View style={styles.rewardContainer}>
-                                        {checkMissionCondition(item.condition) ? (
-                                            <AntDesign name="heart" size={24} color="#fc4e4f" />
-                                        ) : (
-                                            <Feather name="heart" size={24} color="#fc4e4f" />
-                                        )}
+                                        <View style={styles.iconContainer}>
+                                            {checkMissionCondition(item.condition) ? (
+                                                <AntDesign name="heart" size={24} color="#fc4e4f" />
+                                            ) : (
+                                                <Feather name="heart" size={24} color="#fc4e4f" />
+                                            )}
+                                        </View>
                                         <Text style={styles.rewardText}>+ {item.reward}</Text>
                                     </View>
                                 </View>
@@ -242,7 +232,7 @@ export default function CollectReward() {
                 })}
             </View>
         );
-    }
+    };
 
     const renderGamesAndWinsPerDay = () => {
         const todayGames = gamesPerDay.filter(item => item.date === nowFormat);
@@ -288,9 +278,8 @@ export default function CollectReward() {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>{t('get rewards')}</Text>
-
             {renderRewardItem()}
-            {renderGamesAndWinsPerDay()}
+            {/* {renderGamesAndWinsPerDay()} */}
             <Modal visible={isCalendarVisible} transparent={true} animationType="slide" onRequestClose={hideCalendar}>
                 <View style={styles.modalContainer}>
                     <View style={styles.calendarContainer}>
@@ -310,14 +299,44 @@ export default function CollectReward() {
 }
 
 const styles = StyleSheet.create({
+
+    userItem: {
+        marginTop: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+        backgroundColor: 'rgba(44, 44, 44, 0.8)', // Màu nền với độ mờ
+        marginBottom: 12,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 5,
+        borderWidth: 1,
+        borderColor: '#FFD700',
+    },
+    userInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        justifyContent: 'space-between',
+    },
+    
     container: {
         width: "100%",
         padding: 15,
+        height: "100%",
     },
+
     title: {
         fontSize: 20,
-        fontWeight: "600",
-        color: "#262c32",
+        fontWeight: "bold",
+        color: "#fff",
+        textAlign: "center",
+        textTransform: "uppercase",
     },
     missionContainer: {
         flexDirection: 'row',
@@ -334,14 +353,19 @@ const styles = StyleSheet.create({
     missionText: {
         fontSize: 16,
         color: "#fff",
+        fontWeight: "bold",
+        color: '#FFD700',
+
     },
     rewardContainer: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "flex-end",
     },
     rewardText: {
         fontSize: 16,
         marginLeft: 8,
+        color: "#fff",
     },
     modalContainer: {
         flex: 1,

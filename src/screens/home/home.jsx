@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
   },
   header_home_right: {
     marginRight: 20,
+    zIndex: 1,
   },
   header_home_item: {
     flexDirection: "row",

@@ -7,7 +7,9 @@ import PlayWithBot from "./src/screens/home/components/play-with-bot";
 import PlayOneToOne from "./src/screens/home/components/play-one-one";
 import Room from "./src/screens/home/components/room";
 import Login from "./src/screens/login/login";
+import Chart from "./src/screens/component/chart";
 import { DataProvider } from "./src/HookToGetUserInfo/DataContext";
+import 'intl-pluralrules/polyfill';
 import "./src/translate/i18n";
 
 
@@ -24,6 +26,7 @@ export default function App() {
             <Stack.Screen name="PlayWithBot" component={PlayWithBot} options={{ headerShown: false }} />
             <Stack.Screen name="Room" component={Room} options={{ headerShown: false }} />
             <Stack.Screen name="PlayOneToOne" component={PlayOneToOne} options={{ headerShown: false }} />
+            <Stack.Screen name="Chart" component={Chart} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaView>
@@ -35,6 +38,6 @@ const styles = StyleSheet.create({
   droidSafeArea: {
     flex: 1,
     backgroundColor: "#e8e8e8",
-    paddingTop: Platform.OS === "android" ? 35 : 0,
+    paddingTop: Platform.OS === "android" ? 29 : 0,
   },
 });

@@ -7,6 +7,8 @@ export const getUserByNameRoute = `${host}/user/userName`;
 export const getUserByIdRoute = `${host}/user`;
 export const attendanceRoute = `${host}/user/attendance`;
 export const missionsUserRoute = `${host}/user/missions`;
+export const getUserRoute = `${host}/user`;
+
 
 //room
 export const createRoomRoute = `${host}/room/create`;
