@@ -22,10 +22,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.thanhtung15052001.guessthenumber"
+      "package": "com.thanhtung15052001.guessthenumber",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "375f3278-5de9-4ddd-820c-3af84bbb38ae"
+      }
     }
   }
 }

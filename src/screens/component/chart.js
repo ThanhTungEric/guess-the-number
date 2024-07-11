@@ -168,10 +168,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#FFD700',
     },
-    userInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+
     userImage: {
         width: 60,
         height: 60,
