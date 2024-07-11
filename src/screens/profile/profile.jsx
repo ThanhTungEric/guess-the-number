@@ -32,7 +32,7 @@ function Profile({ navigation }) {
             <Text style={styles.logoutText}>{t('explore rank')}</Text>
           </TouchableOpacity>
         </View>
-        <StatusBar style="auto" />
+        <StatusBar style="auto" backgroundColor="#fff" barStyle="light-content" />
       </View>
     </ImageBackground>
   );

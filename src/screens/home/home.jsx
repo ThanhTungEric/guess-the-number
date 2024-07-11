@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 
 import MainNotification from './notification/mainNotication';
 import Gift from './notification/gift';
+
+//
 function Home({ navigation }) {
   const { userData } = useData();
   const { data} = userData;

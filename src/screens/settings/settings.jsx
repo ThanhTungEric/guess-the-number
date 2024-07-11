@@ -80,12 +80,12 @@ function Settings() {
         <TouchableOpacity onPress={backToHome}>
         <AntDesign name="arrowleft" size={26} color="black" />
         </TouchableOpacity>
-        <Text style={{ fontSize: 18, backgroundColor: "#fff", fontWeight: "500", marginLeft: 10 }}>{t('delete')}</Text>
+        <Text style={{ fontSize: 18, backgroundColor: "#fff", fontWeight: "500", marginLeft: 10 }}>{t('setting')}</Text>
       </View>
-      <View style={{ width: "100%", paddingVertical: 15, backgroundColor: "#fff", marginTop: 8, paddingHorizontal: 20, flexDirection: "row", justifyContent: "space-between" }}>
+      {/* <View style={{ width: "100%", paddingVertical: 15, backgroundColor: "#fff", marginTop: 8, paddingHorizontal: 20, flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={{ fontSize: 16, fontWeight: "400" }}>{t('delete cache')}</Text>
         <AntDesign name="right" size={17} color="#bdbdbd" />
-      </View>
+      </View> */}
       <TouchableOpacity onPress={openModalLanguage} style={{ width: "100%", paddingVertical: 15, backgroundColor: "#fff", marginTop: 8, paddingHorizontal: 20, flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={{ fontSize: 16, fontWeight: "400" }}>{t('language')}</Text>
         <AntDesign name="right" size={17} color="#bdbdbd" />

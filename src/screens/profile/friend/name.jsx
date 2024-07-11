@@ -10,7 +10,8 @@ export default function Name() {
     return (
         <View style={styles.container}>
             <View style={styles.avatarContainer}>
-                <Image source={img} style={styles.avatarImage} />
+                <Image source={avatar ? { uri: avatar } : img}
+                style={styles.avatarImage} />
             </View>
             <View style={styles.userInfoContainer}>
                 <Text style={styles.username}>{data.user.username}</Text>
@@ -37,6 +38,7 @@ const styles = StyleSheet.create({
         width: "100%",
         height: "100%",
         resizeMode: "cover",
+        borderRadius: 50
     },
     avatarCountry: {
         width: 30,
